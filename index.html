@@ -1770,10 +1770,10 @@
 <audio id="lofi31Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/tickets_to_nowhere.wav?raw=true"></audio>
 <audio id="lofi32Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/vinyl_hustle.wav?raw=true"></audio>
 <audio id="lofi33Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/warm_blanket_thoughts.wav?raw=true"></audio>
-    <audio id="applauseSound" src="https://assets.mixkit.co/active_storage/sfx/247/247-preview.mp3" preload="auto"></audio>
+    <audio id="applauseSound" src="assets/sounds/applause.mp3"></audio>
 
     <div class="animal-side animal-left">
-        <img class="animal-gif" id="leftAnimalGif" src="https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif" alt="Working animal">
+        <img class="animal-gif" id="leftAnimalGif" src="assets/working-dog-animation.gif" alt="Working animal">
     </div>
 
     <div class="container">
@@ -1832,7 +1832,7 @@
     </div>
 
     <div class="animal-side animal-right">
-        <img class="animal-gif" id="rightAnimalGif" src="https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif" alt="Working animal">
+        <img class="animal-gif" id="rightAnimalGif" src="assets/working-dog-animation.gif" alt="Working animal">
     </div>
 
     <script>
@@ -1904,7 +1904,7 @@
             sessionStartTime: null,
             lastTrackingUpdate: 0,
             completedSessions: 0,
-            breakGif: 'https://media.giphy.com/media/3o7aD2d7hy9ktXNDP2/giphy.gif',
+            breakGif: 'assets/break-animation.gif',
             projects: [],
             currentProject: null,
             // Rewards system
@@ -1973,8 +1973,8 @@
                 DOM.body.classList.add(STATE.isWorkMode ? 'work-mode' : 'break-mode');
                 
                 if (STATE.isWorkMode) {
-                    DOM.leftAnimalGif.src = 'https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif';
-                    DOM.rightAnimalGif.src = 'https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif';
+                    DOM.leftAnimalGif.src = 'assets/working-dog-animation.gif';
+                    DOM.rightAnimalGif.src = 'assets/working-dog-animation.gif';
                 } else {
                     DOM.leftAnimalGif.src = STATE.breakGif;
                     DOM.rightAnimalGif.src = STATE.breakGif;
@@ -2084,8 +2084,8 @@
                         DOM.body.classList.add(STATE.isWorkMode ? 'work-mode' : 'break-mode');
                         
                         if (STATE.isWorkMode) {
-                            DOM.leftAnimalGif.src = 'https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif';
-                            DOM.rightAnimalGif.src = 'https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif';
+                            DOM.leftAnimalGif.src = 'assets/working-dog-animation.gif';
+                            DOM.rightAnimalGif.src = 'assets/working-dog-animation.gif';
                         } else {
                             DOM.leftAnimalGif.src = STATE.breakGif;
                             DOM.rightAnimalGif.src = STATE.breakGif;
@@ -2254,8 +2254,8 @@
                 DOM.body.classList.add(STATE.isWorkMode ? 'work-mode' : 'break-mode');
                 
                 if (STATE.isWorkMode) {
-                    DOM.leftAnimalGif.src = 'https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif';
-                    DOM.rightAnimalGif.src = 'https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif';
+                    DOM.leftAnimalGif.src = 'assets/working-dog-animation.gif';
+                    DOM.rightAnimalGif.src = 'assets/working-dog-animation.gif';
                 } else {
                     DOM.leftAnimalGif.src = STATE.breakGif;
                     DOM.rightAnimalGif.src = STATE.breakGif;
