@@ -1716,6 +1716,7 @@
     </div>
 
     <!-- Audio Elements (hidden) -->
+    <audio id="alarmSound" src="https://assets.mixkit.co/active_storage/sfx/250/250-preview.mp3" preload="auto"></audio>
     <audio id="meditationBowlsSound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/backgroundambiance/meditation-bowls.wav?raw=true"></audio>
     <audio id="rainSound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/backgroundambiance/rain.wav?raw=true"></audio>
     <audio id="forestSound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/backgroundambiance/forest.wav?raw=true"></audio>
@@ -1769,10 +1770,10 @@
 <audio id="lofi31Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/tickets_to_nowhere.wav?raw=true"></audio>
 <audio id="lofi32Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/vinyl_hustle.wav?raw=true"></audio>
 <audio id="lofi33Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/warm_blanket_thoughts.wav?raw=true"></audio>
-    <audio id="applauseSound" src="assets/sounds/applause.mp3" preload="auto"></audio>
+    <audio id="applauseSound" src="https://assets.mixkit.co/active_storage/sfx/247/247-preview.mp3" preload="auto"></audio>
 
     <div class="animal-side animal-left">
-        <img class="animal-gif" id="leftAnimalGif" src="assets/working-dog-animation.gif" alt="Working animal">
+        <img class="animal-gif" id="leftAnimalGif" src="https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif" alt="Working animal">
     </div>
 
     <div class="container">
@@ -1831,7 +1832,7 @@
     </div>
 
     <div class="animal-side animal-right">
-        <img class="animal-gif" id="rightAnimalGif" src="assets/working-dog-animation.gif" alt="Working animal">
+        <img class="animal-gif" id="rightAnimalGif" src="https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif" alt="Working animal">
     </div>
 
     <script>
@@ -1903,7 +1904,7 @@
             sessionStartTime: null,
             lastTrackingUpdate: 0,
             completedSessions: 0,
-            breakGif: 'assets/break-animation.gif',
+            breakGif: 'https://media.giphy.com/media/3o7aD2d7hy9ktXNDP2/giphy.gif',
             projects: [],
             currentProject: null,
             // Rewards system
@@ -1972,8 +1973,8 @@
                 DOM.body.classList.add(STATE.isWorkMode ? 'work-mode' : 'break-mode');
                 
                 if (STATE.isWorkMode) {
-                    DOM.leftAnimalGif.src = 'assets/working-dog-animation.gif';
-                    DOM.rightAnimalGif.src = 'assets/working-dog-animation.gif';
+                    DOM.leftAnimalGif.src = 'https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif';
+                    DOM.rightAnimalGif.src = 'https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif';
                 } else {
                     DOM.leftAnimalGif.src = STATE.breakGif;
                     DOM.rightAnimalGif.src = STATE.breakGif;
@@ -2017,41 +2018,32 @@
                         trackingActions.updateDisplay();
                     }
                     
-                    if (STATE.totalSeconds === 0) {
-                        // Play alarm sound for timer completion
-                        DOM.alarmSound.volume = 1.0; // Set to maximum volume
+                    // FIXED: Stop the timer and trigger alarm at 0, not in negatives
+                    if (STATE.totalSeconds <= 0) {
+                        // Stop the timer immediately
+                        clearInterval(STATE.timer);
+                        STATE.isRunning = false;
+                        
+                        // Set timer to exactly 0
+                        STATE.totalSeconds = 0;
+                        timerActions.updateDisplay();
+                        
+                        // Play alarm sound for exactly 2 seconds
+                        DOM.alarmSound.volume = 1.0;
                         DOM.alarmSound.currentTime = 0;
                         DOM.alarmSound.play();
-
-                            // Make the alarm play for 3 seconds
+                        
+                        // Stop alarm after 2 seconds
                         setTimeout(() => {
                             DOM.alarmSound.pause();
-                        }, 3000);
+                        }, 2000);
                         
                         // Only trigger confetti for work sessions
                         if (STATE.isWorkMode) {
                             celebrationActions.triggerCelebration();
                         }
-                    }
-                    
-                    if (STATE.totalSeconds <= 0) {
-                        if (Math.abs(STATE.totalSeconds) % 60 === 0) {
-                            const now = Date.now();
-                            const elapsedSeconds = Math.floor((now - STATE.lastTrackingUpdate) / 1000);
-                            
-                            if (elapsedSeconds >= 1) {
-                                if (STATE.isWorkMode) {
-                                    STATE.totalWorkSeconds += elapsedSeconds;
-                                } else {
-                                    STATE.totalBreakSeconds += elapsedSeconds;
-                                }
-                                STATE.lastTrackingUpdate = now;
-                                trackingActions.updateDisplay();
-                            }
-                        }
-                    }
-                    
-                    if (STATE.totalSeconds === -1) {
+                        
+                        // Handle session completion
                         const sessionEndTime = new Date();
                         const sessionDuration = Math.floor((sessionEndTime - STATE.sessionStartTime) / 1000);
                         
@@ -2084,6 +2076,7 @@
                         
                         trackingActions.updateDisplay();
                         
+                        // Switch modes
                         STATE.isWorkMode = !STATE.isWorkMode;
                         timerActions.updateModeIndicator();
                         
@@ -2091,13 +2084,14 @@
                         DOM.body.classList.add(STATE.isWorkMode ? 'work-mode' : 'break-mode');
                         
                         if (STATE.isWorkMode) {
-                            DOM.leftAnimalGif.src = 'assets/working-dog-animation.gif';
-                            DOM.rightAnimalGif.src = 'assets/working-dog-animation.gif';
+                            DOM.leftAnimalGif.src = 'https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif';
+                            DOM.rightAnimalGif.src = 'https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif';
                         } else {
                             DOM.leftAnimalGif.src = STATE.breakGif;
                             DOM.rightAnimalGif.src = STATE.breakGif;
                         }
                         
+                        // Set next timer duration
                         if (STATE.isWorkMode) {
                             timerActions.setQuickTime(25, 0, true);
                         } else {
@@ -2111,6 +2105,7 @@
                             }
                         }
                         
+                        // Update UI
                         DOM.startButton.style.display = 'inline-block';
                         DOM.pauseButton.style.display = 'none';
                         DOM.stopButton.style.display = 'none';
@@ -2243,8 +2238,8 @@
                 DOM.body.classList.add(STATE.isWorkMode ? 'work-mode' : 'break-mode');
                 
                 if (STATE.isWorkMode) {
-                    DOM.leftAnimalGif.src = 'assets/working-dog-animation.gif';
-                    DOM.rightAnimalGif.src = 'assets/working-dog-animation.gif';
+                    DOM.leftAnimalGif.src = 'https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif';
+                    DOM.rightAnimalGif.src = 'https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif';
                 } else {
                     DOM.leftAnimalGif.src = STATE.breakGif;
                     DOM.rightAnimalGif.src = STATE.breakGif;
@@ -2259,8 +2254,8 @@
                 DOM.body.classList.add(STATE.isWorkMode ? 'work-mode' : 'break-mode');
                 
                 if (STATE.isWorkMode) {
-                    DOM.leftAnimalGif.src = 'assets/working-dog-animation.gif';
-                    DOM.rightAnimalGif.src = 'assets/working-dog-animation.gif';
+                    DOM.leftAnimalGif.src = 'https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif';
+                    DOM.rightAnimalGif.src = 'https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif';
                 } else {
                     DOM.leftAnimalGif.src = STATE.breakGif;
                     DOM.rightAnimalGif.src = STATE.breakGif;
