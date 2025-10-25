@@ -2026,6 +2026,7 @@
                         // Stop the timer immediately
                         clearInterval(STATE.timer);
                         STATE.isRunning = false;
+                        STATE.isPaused = false; // ADD THIS LINE
                         
                         // Set timer to exactly 0
                         STATE.totalSeconds = 0;
@@ -2107,6 +2108,15 @@
                                 localStorage.setItem('lastBreakWasShort', 'true');
                             }
                         }
+                        
+                        // FIXED: Reset UI buttons properly
+                        DOM.startButton.style.display = 'inline-block';
+                        DOM.pauseButton.style.display = 'none';
+                        DOM.stopButton.style.display = 'none';
+                        STATE.sessionStartTime = null;
+                        
+                        return; // ADD THIS LINE to prevent further execution
+                    }
                         
                         // Update UI
                         DOM.startButton.style.display = 'inline-block';
