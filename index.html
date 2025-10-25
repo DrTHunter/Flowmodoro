@@ -2020,7 +2020,7 @@
                         trackingActions.updateDisplay();
                     }
                     
-                    // FIXED: Stop the timer and trigger alarm at 0, not in negatives
+                    // FIXED: Stop the timer and trigger alarm at exactly 0
                     if (STATE.totalSeconds <= 0) {
                         // Stop the timer immediately
                         clearInterval(STATE.timer);
@@ -2039,7 +2039,7 @@
                         // Stop alarm after 2 seconds
                         setTimeout(() => {
                             DOM.alarmSound.pause();
-                        }, 3000);
+                        }, 2000);
                         
                         // Only trigger confetti for work sessions
                         if (STATE.isWorkMode) {
@@ -2114,9 +2114,11 @@
                         DOM.stopButton.style.display = 'none';
                         STATE.sessionStartTime = null;
                         
-                        return; // ADD THIS LINE to prevent further execution
+                        return; // CRITICAL: Stop further execution
                     }
                 }, 1000);
+                
+                return true;
             },
 
             pause() {
