@@ -1719,7 +1719,7 @@
     </div>
 
     <!-- Audio Elements (hidden) -->
-    <audio id="alarmSound" src="https://github.com/DrTHunter/Flowmodoro/raw/Production-Ready/assets/sounds/alarm.wav"></audio>
+    <audio id="alarmSound" src="https://github.com/DrTHunter/Flowmodoro/raw/Production-Ready/assets/sounds/alarm.wav" preload="auto"></audio>
     <audio id="meditationBowlsSound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/backgroundambiance/meditation-bowls.wav?raw=true"></audio>
     <audio id="rainSound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/backgroundambiance/rain.wav?raw=true"></audio>
     <audio id="forestSound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/backgroundambiance/forest.wav?raw=true"></audio>
@@ -2031,12 +2031,12 @@
                         STATE.totalSeconds = 0;
                         timerActions.updateDisplay();
                         
-                        // Play alarm sound for exactly 3 seconds
+                        // Play alarm sound for exactly 2 seconds
                         DOM.alarmSound.volume = 1.0;
                         DOM.alarmSound.currentTime = 0;
                         DOM.alarmSound.play();
                         
-                        // Stop alarm after 3 seconds
+                        // Stop alarm after 2 seconds
                         setTimeout(() => {
                             DOM.alarmSound.pause();
                         }, 3000);
