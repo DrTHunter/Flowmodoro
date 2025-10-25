@@ -145,22 +145,21 @@
         }
 
         .timer-display {
-            font-size: 5em;
-            font-weight: bold;
-            color: var(--primary-purple);
-            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.1);
-            font-family: 'Courier New', monospace;
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             z-index: 2;
-            transition: none;
             width: 100%;
+            min-width: 200px;
             text-align: center;
             font-family: 'Courier New', monospace;
-            min-width: 200px;
+            font-size: 5em;
+            font-weight: bold;
             font-variant-numeric: tabular-nums;
+            color: var(--primary-purple);
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.1);
+            transition: none;
         }
 
         .timer-progress {
