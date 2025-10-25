@@ -2031,15 +2031,15 @@
                         STATE.totalSeconds = 0;
                         timerActions.updateDisplay();
                         
-                        // Play alarm sound for exactly 2 seconds
+                        // Play alarm sound for exactly 3 seconds
                         DOM.alarmSound.volume = 1.0;
                         DOM.alarmSound.currentTime = 0;
                         DOM.alarmSound.play();
                         
-                        // Stop alarm after 2 seconds
+                        // Stop alarm after 3 seconds
                         setTimeout(() => {
                             DOM.alarmSound.pause();
-                        }, 2000);
+                        }, 3000);
                         
                         // Only trigger confetti for work sessions
                         if (STATE.isWorkMode) {
