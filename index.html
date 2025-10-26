@@ -507,6 +507,19 @@
             background: #f5f5f5;
         }
         
+        /* Delete All Data Button Styles */
+        #deleteAllDataBtn {
+            color: #ff4444 !important;
+            font-weight: bold;
+            border-top: 1px solid #ffcccc !important;
+            background-color: #fffafa;
+        }
+        
+        #deleteAllDataBtn:hover {
+            background-color: #ffe6e6 !important;
+            color: #cc0000 !important;
+        }
+        
         /* Panel Styles */
         .panel {
             display: none;
@@ -1146,6 +1159,8 @@
             <div class="item" data-panel="rewards">🏆 Rewards</div>
             <div class="item" data-panel="dataTracking">📈 Project Data</div>
             <div class="item" data-panel="donate">☕ Support</div>
+            <!-- Add Delete All Data button -->
+            <div class="item" id="deleteAllDataBtn" style="color: #ff4444; border-top: 1px solid #f0f0f0;">🗑️ Delete All Data</div>
         </div>
     </div>
 
@@ -3131,6 +3146,14 @@
                     document.getElementById(`${btn.dataset.tab}-tab`).classList.add('active');
                 });
             });
+            
+            // Handle Delete All Data button
+            document.getElementById('deleteAllDataBtn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                rewardsSystem.deleteAllData();
+                // Close the dropdown
+                menuItems.classList.remove('show');
+            });
         }
     };
     
@@ -3300,6 +3323,85 @@
             
             this.saveRewardsData();
             this.renderRewards();
+        },
+    
+        deleteAllData() {
+            if (confirm('⚠️ WARNING: This will permanently delete ALL your data including:\n\n• Projects & Notes\n• Work/Break Time Tracking\n• Reward Progress & History\n• All Statistics\n\nThis action cannot be undone!\n\nAre you absolutely sure?')) {
+                // Clear all localStorage data
+                localStorage.removeItem('projects');
+                localStorage.removeItem('totalWorkSeconds');
+                localStorage.removeItem('totalBreakSeconds');
+                localStorage.removeItem('rewardsData');
+                localStorage.removeItem('dailyData');
+                localStorage.removeItem('weeklyData');
+                localStorage.removeItem('monthlyData');
+                
+                // Reset all state variables
+                STATE.projects = [];
+                STATE.currentProject = null;
+                STATE.totalWorkSeconds = 0;
+                STATE.totalBreakSeconds = 0;
+                STATE.completedSessions = 0;
+                
+                // Reset rewards system
+                this.rewards = {
+                    daily: {
+                        'daily-1': { name: 'Morning Brew', description: 'Complete 1 Pomodoro', target: 1, current: 0, completed: false, icon: '☕' },
+                        'daily-2': { name: 'Focused Learner', description: 'Complete 3 Pomodoros', target: 3, current: 0, completed: false, icon: '📚' },
+                        'daily-3': { name: 'Productivity Pro', description: 'Complete 5 Pomodoros', target: 5, current: 0, completed: false, icon: '🏆' },
+                        'daily-4': { name: 'Time Master', description: 'Work for 2 hours', target: 120, current: 0, completed: false, icon: '⏰' },
+                        'daily-5': { name: 'Balanced Day', description: 'Take all scheduled breaks', target: 1, current: 0, completed: false, icon: '🧘' }
+                    },
+                    weekly: {
+                        'weekly-1': { name: 'Consistent Starter', description: 'Work 3 days this week', target: 3, current: 0, completed: false, icon: '📅' },
+                        'weekly-2': { name: 'Dedicated Worker', description: 'Complete 15 Pomodoros', target: 15, current: 0, completed: false, icon: '💪' },
+                        'weekly-3': { name: 'Time Investor', description: 'Work for 10 hours', target: 600, current: 0, completed: false, icon: '⏳' },
+                        'weekly-4': { name: 'Project Champion', description: 'Work on 3 different projects', target: 3, current: 0, completed: false, icon: '📝' },
+                        'weekly-5': { name: 'Perfect Week', description: 'Complete all daily rewards', target: 5, current: 0, completed: false, icon: '🌟' },
+                        'weekly-6': { name: 'Weekend Warrior', description: 'Work on a weekend day', target: 1, current: 0, completed: false, icon: '🏝️' }
+                    },
+                    monthly: {
+                        'monthly-1': { name: 'Month Starter', description: 'Work 10 days this month', target: 10, current: 0, completed: false, icon: '📆' },
+                        'monthly-2': { name: 'Hot Streak', description: 'Work 5 days in a row', target: 5, current: 0, completed: false, icon: '🔥' },
+                        'monthly-3': { name: 'Time Titan', description: 'Work for 50 hours', target: 3000, current: 0, completed: false, icon: '⏱️' },
+                        'monthly-4': { name: 'Pomodoro Master', description: 'Complete 100 Pomodoros', target: 100, current: 0, completed: false, icon: '🍅' },
+                        'monthly-5': { name: 'Project Explorer', description: 'Work on 10 different projects', target: 10, current: 0, completed: false, icon: '📚' },
+                        'monthly-6': { name: 'Weekly Warrior', description: 'Complete all weekly rewards', target: 6, current: 0, completed: false, icon: '🏅' },
+                        'monthly-7': { name: 'Night Owl', description: 'Work after 10 PM 5 times', target: 5, current: 0, completed: false, icon: '🌙' },
+                        'monthly-8': { name: 'Early Bird', description: 'Work before 8 AM 5 times', target: 5, current: 0, completed: false, icon: '🌅' },
+                        'monthly-9': { name: 'Consistency King', description: 'Work every weekday for 2 weeks', target: 10, current: 0, completed: false, icon: '📊' },
+                        'monthly-10': { name: 'Ultimate Achiever', description: 'Complete all monthly rewards', target: 9, current: 0, completed: false, icon: '🏆' }
+                    }
+                };
+                this.history = [];
+                this.lastReset = {
+                    daily: null,
+                    weekly: null,
+                    monthly: null
+                };
+                this.currentStreak = 0;
+                this.lastWorkDate = null;
+                this.activeProjects = new Set();
+                this.nightWorkCount = 0;
+                this.morningWorkCount = 0;
+                this.workDays = new Set();
+                
+                // Reset data tracking
+                STATE.dailyData = {};
+                STATE.weeklyData = {};
+                STATE.monthlyData = {};
+                
+                // Update UI
+                projectActions.renderProjects();
+                trackingActions.updateDisplay();
+                this.renderRewards();
+                this.renderHistory();
+                dataTracking.updateDateSelectors();
+                dataTracking.updateDailyDataDisplay();
+                
+                // Show confirmation
+                alert('✅ All data has been successfully deleted! The application has been reset to its initial state.');
+            }
         },
     
         updateProgress(type, rewardId, amount = 1) {
