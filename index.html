@@ -1838,311 +1838,198 @@
     </div>
 
     <script>
-        // ========== DOM Elements ==========
-        const DOM = {
-            timer: document.getElementById('timer'),
-            timerProgress: document.getElementById('timerProgress'),
-            startButton: document.getElementById('start'),
-            pauseButton: document.getElementById('pause'),
-            stopButton: document.getElementById('stop'),
-            work25Button: document.getElementById('work25'),
-            break5Button: document.getElementById('break5'),
-            break30Button: document.getElementById('break30'),
-            setWorkModeButton: document.getElementById('setWorkMode'),
-            setBreakModeButton: document.getElementById('setBreakMode'),
-            totalWorkDisplay: document.getElementById('totalWork'),
-            totalBreakDisplay: document.getElementById('totalBreak'),
-            resetTracking: document.getElementById('resetTracking'),
-            modeIndicator: document.getElementById('modeIndicator'),
-            projectInput: document.getElementById('projectInput'),
-            addProjectBtn: document.getElementById('addProjectBtn'),
-            projectList: document.getElementById('projectList'),
-            leftAnimalGif: document.getElementById('leftAnimalGif'),
-            rightAnimalGif: document.getElementById('rightAnimalGif'),
-            body: document.body,
-            alarmSound: document.getElementById('alarmSound'),
-            applauseSound: document.getElementById('applauseSound'),
-            // Modal elements
-            projectWarningModal: document.getElementById('projectWarningModal'),
-            selectProjectBtn: document.getElementById('selectProjectBtn'),
-            startWithoutProjectBtn: document.getElementById('startWithoutProjectBtn'),
-            // Reward modal elements
-            rewardModal: document.getElementById('rewardModal'),
-            rewardModalIcon: document.getElementById('rewardModalIcon'),
-            rewardModalTitle: document.getElementById('rewardModalTitle'),
-            rewardModalDescription: document.getElementById('rewardModalDescription'),
-            closeRewardModal: document.getElementById('closeRewardModal'),
-            // Data tracking elements
-            dailyDateSelect: document.getElementById('daily-date-select'),
-            weeklyDateSelect: document.getElementById('weekly-date-select'),
-            monthlyDateSelect: document.getElementById('monthly-date-select'),
-            dailyDataBody: document.getElementById('daily-data-body'),
-            weeklyDataBody: document.getElementById('weekly-data-body'),
-            monthlyDataBody: document.getElementById('monthly-data-body'),
-            dailyWorkSummary: document.getElementById('daily-work-summary'),
-            dailyBreakSummary: document.getElementById('daily-break-summary'),
-            dailyPomodorosSummary: document.getElementById('daily-pomodoros-summary'),
-            weeklyWorkSummary: document.getElementById('weekly-work-summary'),
-            weeklyBreakSummary: document.getElementById('weekly-break-summary'),
-            weeklyPomodorosSummary: document.getElementById('weekly-pomodoros-summary'),
-            weeklyDaysSummary: document.getElementById('weekly-days-summary'),
-            monthlyWorkSummary: document.getElementById('monthly-work-summary'),
-            monthlyBreakSummary: document.getElementById('monthly-break-summary'),
-            monthlyPomodorosSummary: document.getElementById('monthly-pomodoros-summary'),
-            monthlyDaysSummary: document.getElementById('monthly-days-summary'),
-            closeDataTracking: document.getElementById('closeDataTracking')
-        };
-
-        // ========== State Management ==========
-        const STATE = {
-            timer: null,
-            isRunning: false,
-            isPaused: false,
-            isWorkMode: true,
-            totalSeconds: 25 * 60,
-            initialSeconds: 25 * 60,
-            totalWorkSeconds: 0,
-            totalBreakSeconds: 0,
-            sessionStartTime: null,
-            lastTrackingUpdate: 0,
-            completedSessions: 0,
-            breakGif: 'assets/break-animation.gif',
-            projects: [],
-            currentProject: null,
-            // Rewards system
-            rewardsSystem: null,
-            // Data tracking
-            dailyData: {},
-            weeklyData: {},
-            monthlyData: {}
-        };
-
-        // ========== Timer Functions ==========
-        const timerActions = {
-            start() {
-                // Check if we need to show the warning modal
-                if (STATE.isWorkMode && !STATE.currentProject) {
-                    const modal = DOM.projectWarningModal;
-                    modal.style.display = 'flex';
+    // ========== DOM Elements ==========
+    const DOM = {
+        timer: document.getElementById('timer'),
+        timerProgress: document.getElementById('timerProgress'),
+        startButton: document.getElementById('start'),
+        pauseButton: document.getElementById('pause'),
+        stopButton: document.getElementById('stop'),
+        work25Button: document.getElementById('work25'),
+        break5Button: document.getElementById('break5'),
+        break30Button: document.getElementById('break30'),
+        setWorkModeButton: document.getElementById('setWorkMode'),
+        setBreakModeButton: document.getElementById('setBreakMode'),
+        totalWorkDisplay: document.getElementById('totalWork'),
+        totalBreakDisplay: document.getElementById('totalBreak'),
+        resetTracking: document.getElementById('resetTracking'),
+        modeIndicator: document.getElementById('modeIndicator'),
+        projectInput: document.getElementById('projectInput'),
+        addProjectBtn: document.getElementById('addProjectBtn'),
+        projectList: document.getElementById('projectList'),
+        leftAnimalGif: document.getElementById('leftAnimalGif'),
+        rightAnimalGif: document.getElementById('rightAnimalGif'),
+        body: document.body,
+        alarmSound: document.getElementById('alarmSound'),
+        applauseSound: document.getElementById('applauseSound'),
+        // Modal elements
+        projectWarningModal: document.getElementById('projectWarningModal'),
+        selectProjectBtn: document.getElementById('selectProjectBtn'),
+        startWithoutProjectBtn: document.getElementById('startWithoutProjectBtn'),
+        // Reward modal elements
+        rewardModal: document.getElementById('rewardModal'),
+        rewardModalIcon: document.getElementById('rewardModalIcon'),
+        rewardModalTitle: document.getElementById('rewardModalTitle'),
+        rewardModalDescription: document.getElementById('rewardModalDescription'),
+        closeRewardModal: document.getElementById('closeRewardModal'),
+        // Data tracking elements
+        dailyDateSelect: document.getElementById('daily-date-select'),
+        weeklyDateSelect: document.getElementById('weekly-date-select'),
+        monthlyDateSelect: document.getElementById('monthly-date-select'),
+        dailyDataBody: document.getElementById('daily-data-body'),
+        weeklyDataBody: document.getElementById('weekly-data-body'),
+        monthlyDataBody: document.getElementById('monthly-data-body'),
+        dailyWorkSummary: document.getElementById('daily-work-summary'),
+        dailyBreakSummary: document.getElementById('daily-break-summary'),
+        dailyPomodorosSummary: document.getElementById('daily-pomodoros-summary'),
+        weeklyWorkSummary: document.getElementById('weekly-work-summary'),
+        weeklyBreakSummary: document.getElementById('weekly-break-summary'),
+        weeklyPomodorosSummary: document.getElementById('weekly-pomodoros-summary'),
+        weeklyDaysSummary: document.getElementById('weekly-days-summary'),
+        monthlyWorkSummary: document.getElementById('monthly-work-summary'),
+        monthlyBreakSummary: document.getElementById('monthly-break-summary'),
+        monthlyPomodorosSummary: document.getElementById('monthly-pomodoros-summary'),
+        monthlyDaysSummary: document.getElementById('monthly-days-summary'),
+        closeDataTracking: document.getElementById('closeDataTracking')
+    };
+    
+    // ========== State Management ==========
+    const STATE = {
+        timer: null,
+        isRunning: false,
+        isPaused: false,
+        isWorkMode: true,
+        totalSeconds: 25 * 60,
+        initialSeconds: 25 * 60,
+        totalWorkSeconds: 0,
+        totalBreakSeconds: 0,
+        sessionStartTime: null,
+        lastTrackingUpdate: 0,
+        completedSessions: 0,
+        breakGif: 'assets/break-animation.gif',
+        projects: [],
+        currentProject: null,
+        // Rewards system
+        rewardsSystem: null,
+        // Data tracking
+        dailyData: {},
+        weeklyData: {},
+        monthlyData: {}
+    };
+    
+    // ========== Timer Functions ==========
+    const timerActions = {
+        start() {
+            // Check if we need to show the warning modal
+            if (STATE.isWorkMode && !STATE.currentProject) {
+                const modal = DOM.projectWarningModal;
+                modal.style.display = 'flex';
+                
+                // Return here to prevent the timer from starting
+                return new Promise((resolve) => {
+                    // This promise will resolve when the user makes a choice
+                    DOM.selectProjectBtn.onclick = () => {
+                        modal.style.display = 'none';
+                        // Focus the project input to help user select one
+                        DOM.projectInput.focus();
+                        resolve(false); // Timer shouldn't start
+                    };
                     
-                    // Return here to prevent the timer from starting
-                    return new Promise((resolve) => {
-                        // This promise will resolve when the user makes a choice
-                        DOM.selectProjectBtn.onclick = () => {
-                            modal.style.display = 'none';
-                            // Focus the project input to help user select one
-                            DOM.projectInput.focus();
-                            resolve(false); // Timer shouldn't start
-                        };
-                        
-                        DOM.startWithoutProjectBtn.onclick = () => {
-                            modal.style.display = 'none';
-                            // Continue with timer start
-                            STATE.currentProject = null;
-                            resolve(true);
-                        };
-                    }).then((shouldStart) => {
-                        if (shouldStart) {
-                            // Continue with the original start logic
-                            return this._startTimer();
-                        }
-                        return false;
-                    });
-                }
-                
-                // If no modal was shown, just start the timer
-                return this._startTimer();
-            },
-
-            _startTimer() {
-                if (STATE.isRunning) return;
-                
+                    DOM.startWithoutProjectBtn.onclick = () => {
+                        modal.style.display = 'none';
+                        // Continue with timer start
+                        STATE.currentProject = null;
+                        resolve(true);
+                    };
+                }).then((shouldStart) => {
+                    if (shouldStart) {
+                        // Continue with the original start logic
+                        return this._startTimer();
+                    }
+                    return false;
+                });
+            }
+            
+            // If no modal was shown, just start the timer
+            return this._startTimer();
+        },
+    
+        _startTimer() {
+            if (STATE.isRunning) return;
+            
+            if (STATE.totalSeconds <= 0) {
+                STATE.totalSeconds = STATE.initialSeconds;
+                timerActions.updateDisplay();
+            }
+            
+            STATE.isRunning = true;
+            STATE.isPaused = false;
+            STATE.sessionStartTime = new Date();
+            STATE.lastTrackingUpdate = Date.now();
+            
+            DOM.startButton.style.display = 'none';
+            DOM.pauseButton.style.display = 'inline-block';
+            DOM.stopButton.style.display = 'inline-block';
+            
+            DOM.body.classList.remove('work-mode', 'break-mode');
+            DOM.body.classList.add(STATE.isWorkMode ? 'work-mode' : 'break-mode');
+            
+            if (STATE.isWorkMode) {
+                DOM.leftAnimalGif.src = 'assets/working-dog-animation.gif';
+                DOM.rightAnimalGif.src = 'assets/working-dog-animation.gif';
+            } else {
+                DOM.leftAnimalGif.src = STATE.breakGif;
+                DOM.rightAnimalGif.src = STATE.breakGif;
+            }
+            
+            STATE.timer = setInterval(() => {
+                // FIXED: Check if timer reached 0 and handle completion
                 if (STATE.totalSeconds <= 0) {
-                    STATE.totalSeconds = STATE.initialSeconds;
-                    timerActions.updateDisplay();
-                }
-                
-                STATE.isRunning = true;
-                STATE.isPaused = false;
-                STATE.sessionStartTime = new Date();
-                STATE.lastTrackingUpdate = Date.now();
-                
-                DOM.startButton.style.display = 'none';
-                DOM.pauseButton.style.display = 'inline-block';
-                DOM.stopButton.style.display = 'inline-block';
-                
-                DOM.body.classList.remove('work-mode', 'break-mode');
-                DOM.body.classList.add(STATE.isWorkMode ? 'work-mode' : 'break-mode');
-                
-                if (STATE.isWorkMode) {
-                    DOM.leftAnimalGif.src = 'assets/working-dog-animation.gif';
-                    DOM.rightAnimalGif.src = 'assets/working-dog-animation.gif';
-                } else {
-                    DOM.leftAnimalGif.src = STATE.breakGif;
-                    DOM.rightAnimalGif.src = STATE.breakGif;
-                }
-                
-                STATE.timer = setInterval(() => {
-                    // FIXED: Check if timer reached 0 and handle completion
-                    if (STATE.totalSeconds <= 0) {
-                        // Stop the timer immediately
-                        clearInterval(STATE.timer);
-                        STATE.isRunning = false;
-                        STATE.isPaused = false;
-                        
-                        // Ensure timer is exactly 0
-                        STATE.totalSeconds = 0;
-                        timerActions.updateDisplay();
-                        
-                        // Play alarm sound for exactly 2 seconds
-                        DOM.alarmSound.volume = 1.0;
-                        DOM.alarmSound.currentTime = 0;
-                        DOM.alarmSound.play();
-                        
-                        // Stop alarm after 2 seconds
-                        setTimeout(() => {
-                            DOM.alarmSound.pause();
-                        }, 2000);
-                        
-                        // Only trigger confetti for work sessions
-                        if (STATE.isWorkMode) {
-                            celebrationActions.triggerCelebration();
-                        }
-                        
-                        // Handle session completion
-                        const sessionEndTime = new Date();
-                        const sessionDuration = Math.floor((sessionEndTime - STATE.sessionStartTime) / 1000);
-                        
-                        if (STATE.isWorkMode) {
-                            STATE.totalWorkSeconds += sessionDuration;
-                            STATE.completedSessions++;
-                            if (STATE.currentProject) {
-                                const project = STATE.projects.find(p => p.id === STATE.currentProject);
-                                if (project) {
-                                    project.pomodoros++;
-                                    project.workTime += sessionDuration;
-                                    projectActions.saveProjects();
-                                    projectActions.renderProjects();
-                                    dataTracking.updateDailyData(project.id, sessionDuration, 0, 1);
-                                }
-                            }
-                        } else {
-                            STATE.totalBreakSeconds += sessionDuration;
-                            if (STATE.currentProject) {
-                                const project = STATE.projects.find(p => p.id === STATE.currentProject);
-                                if (project) {
-                                    project.breaks++;
-                                    project.breakTime += sessionDuration;
-                                    projectActions.saveProjects();
-                                    projectActions.renderProjects();
-                                    dataTracking.updateDailyData(project.id, 0, sessionDuration, 0);
-                                }
-                            }
-                        }
-                        
-                        trackingActions.updateDisplay();
-                        
-                        // FIXED: Reset UI buttons BEFORE switching modes
-                        DOM.startButton.style.display = 'inline-block';
-                        DOM.pauseButton.style.display = 'none';
-                        DOM.stopButton.style.display = 'none';
-                        STATE.sessionStartTime = null;
-                        
-                        // Switch modes
-                        STATE.isWorkMode = !STATE.isWorkMode;
-                        timerActions.updateModeIndicator();
-                        
-                        DOM.body.classList.remove('work-mode', 'break-mode');
-                        DOM.body.classList.add(STATE.isWorkMode ? 'work-mode' : 'break-mode');
-                        
-                        if (STATE.isWorkMode) {
-                            DOM.leftAnimalGif.src = 'assets/working-dog-animation.gif';
-                            DOM.rightAnimalGif.src = 'assets/working-dog-animation.gif';
-                        } else {
-                            DOM.leftAnimalGif.src = STATE.breakGif;
-                            DOM.rightAnimalGif.src = STATE.breakGif;
-                        }
-                        
-                        // Set next timer duration
-                        if (STATE.isWorkMode) {
-                            timerActions.setQuickTime(25, 0, true);
-                        } else {
-                            const lastBreakWasShort = localStorage.getItem('lastBreakWasShort') === 'true';
-                            if (lastBreakWasShort) {
-                                timerActions.setQuickTime(30, 0, false);
-                                localStorage.setItem('lastBreakWasShort', 'false');
-                            } else {
-                                timerActions.setQuickTime(5, 0, false);
-                                localStorage.setItem('lastBreakWasShort', 'true');
-                            }
-                        }
-                        
-                        return; // Stop further execution for this interval
-                    }
-                    
-                    // Only decrement and update if timer is still running above 0
-                    STATE.totalSeconds--;
-                    timerActions.updateDisplay();
-                    
-                    const progressPercent = 100 - (STATE.totalSeconds / STATE.initialSeconds * 100);
-                    DOM.timerProgress.style.background = `conic-gradient(var(--primary-blue) ${progressPercent}%, transparent ${progressPercent}%)`;
-                    
-                    const now = Date.now();
-                    const elapsedSeconds = Math.floor((now - STATE.lastTrackingUpdate) / 1000);
-                    
-                    if (elapsedSeconds >= 1) {
-                        if (STATE.isWorkMode) {
-                            STATE.totalWorkSeconds += elapsedSeconds;
-                            if (STATE.currentProject) {
-                                const project = STATE.projects.find(p => p.id === STATE.currentProject);
-                                if (project) {
-                                    project.workTime += elapsedSeconds;
-                                    projectActions.saveProjects();
-                                    projectActions.renderProjects();
-                                    dataTracking.updateDailyData(project.id, elapsedSeconds, 0, 0);
-                                }
-                            }
-                        } else {
-                            STATE.totalBreakSeconds += elapsedSeconds;
-                            if (STATE.currentProject) {
-                                const project = STATE.projects.find(p => p.id === STATE.currentProject);
-                                if (project) {
-                                    project.breakTime += elapsedSeconds;
-                                    projectActions.saveProjects();
-                                    projectActions.renderProjects();
-                                    dataTracking.updateDailyData(project.id, 0, elapsedSeconds, 0);
-                                }
-                            }
-                        }
-                        STATE.lastTrackingUpdate = now;
-                        trackingActions.updateDisplay();
-                    }
-                }, 1000);
-                
-                return true;
-            },
-
-            pause() {
-                if (STATE.isRunning) {
+                    // Stop the timer immediately
                     clearInterval(STATE.timer);
                     STATE.isRunning = false;
-                    STATE.isPaused = true;
+                    STATE.isPaused = false;
+                    
+                    // Ensure timer is exactly 0
+                    STATE.totalSeconds = 0;
+                    timerActions.updateDisplay();
+                    
+                    // Play alarm sound for exactly 2 seconds (for both work AND break modes)
+                    DOM.alarmSound.volume = 1.0;
+                    DOM.alarmSound.currentTime = 0;
+                    DOM.alarmSound.play();
+                    
+                    // Stop alarm after 2 seconds
+                    setTimeout(() => {
+                        DOM.alarmSound.pause();
+                    }, 2000);
+                    
+                    // FIXED: Reset UI buttons BEFORE switching modes and triggering confetti
                     DOM.startButton.style.display = 'inline-block';
                     DOM.pauseButton.style.display = 'none';
-                    DOM.stopButton.style.display = 'inline-block';
+                    DOM.stopButton.style.display = 'none';
+                    STATE.sessionStartTime = null;
                     
-                    const now = new Date();
-                    const sessionDuration = Math.floor((now - STATE.sessionStartTime) / 1000);
+                    // Only trigger confetti for work sessions
+                    if (STATE.isWorkMode) {
+                        celebrationActions.triggerCelebration();
+                    }
+                    
+                    // Handle session completion
+                    const sessionEndTime = new Date();
+                    const sessionDuration = Math.floor((sessionEndTime - STATE.sessionStartTime) / 1000);
                     
                     if (STATE.isWorkMode) {
                         STATE.totalWorkSeconds += sessionDuration;
+                        STATE.completedSessions++;
                         if (STATE.currentProject) {
                             const project = STATE.projects.find(p => p.id === STATE.currentProject);
                             if (project) {
+                                project.pomodoros++;
                                 project.workTime += sessionDuration;
                                 projectActions.saveProjects();
                                 projectActions.renderProjects();
-                                dataTracking.updateDailyData(project.id, sessionDuration, 0, 0);
+                                dataTracking.updateDailyData(project.id, sessionDuration, 0, 1);
                             }
                         }
                     } else {
@@ -2150,6 +2037,164 @@
                         if (STATE.currentProject) {
                             const project = STATE.projects.find(p => p.id === STATE.currentProject);
                             if (project) {
+                                project.breaks++;
+                                project.breakTime += sessionDuration;
+                                projectActions.saveProjects();
+                                projectActions.renderProjects();
+                                dataTracking.updateDailyData(project.id, 0, sessionDuration, 0);
+                            }
+                        }
+                    }
+                    
+                    trackingActions.updateDisplay();
+                    
+                    // Switch modes
+                    STATE.isWorkMode = !STATE.isWorkMode;
+                    timerActions.updateModeIndicator();
+                    
+                    DOM.body.classList.remove('work-mode', 'break-mode');
+                    DOM.body.classList.add(STATE.isWorkMode ? 'work-mode' : 'break-mode');
+                    
+                    if (STATE.isWorkMode) {
+                        DOM.leftAnimalGif.src = 'assets/working-dog-animation.gif';
+                        DOM.rightAnimalGif.src = 'assets/working-dog-animation.gif';
+                    } else {
+                        DOM.leftAnimalGif.src = STATE.breakGif;
+                        DOM.rightAnimalGif.src = STATE.breakGif;
+                    }
+                    
+                    // Set next timer duration
+                    if (STATE.isWorkMode) {
+                        timerActions.setQuickTime(25, 0, true);
+                    } else {
+                        const lastBreakWasShort = localStorage.getItem('lastBreakWasShort') === 'true';
+                        if (lastBreakWasShort) {
+                            timerActions.setQuickTime(30, 0, false);
+                            localStorage.setItem('lastBreakWasShort', 'false');
+                        } else {
+                            timerActions.setQuickTime(5, 0, false);
+                            localStorage.setItem('lastBreakWasShort', 'true');
+                        }
+                    }
+                    
+                    return; // Stop further execution for this interval
+                }
+                
+                // Only decrement and update if timer is still running above 0
+                STATE.totalSeconds--;
+                timerActions.updateDisplay();
+                
+                const progressPercent = 100 - (STATE.totalSeconds / STATE.initialSeconds * 100);
+                DOM.timerProgress.style.background = `conic-gradient(var(--primary-blue) ${progressPercent}%, transparent ${progressPercent}%)`;
+                
+                const now = Date.now();
+                const elapsedSeconds = Math.floor((now - STATE.lastTrackingUpdate) / 1000);
+                
+                if (elapsedSeconds >= 1) {
+                    if (STATE.isWorkMode) {
+                        STATE.totalWorkSeconds += elapsedSeconds;
+                        if (STATE.currentProject) {
+                            const project = STATE.projects.find(p => p.id === STATE.currentProject);
+                            if (project) {
+                                project.workTime += elapsedSeconds;
+                                projectActions.saveProjects();
+                                projectActions.renderProjects();
+                                dataTracking.updateDailyData(project.id, elapsedSeconds, 0, 0);
+                            }
+                        }
+                    } else {
+                        STATE.totalBreakSeconds += elapsedSeconds;
+                        if (STATE.currentProject) {
+                            const project = STATE.projects.find(p => p.id === STATE.currentProject);
+                            if (project) {
+                                project.breakTime += elapsedSeconds;
+                                projectActions.saveProjects();
+                                projectActions.renderProjects();
+                                dataTracking.updateDailyData(project.id, 0, elapsedSeconds, 0);
+                            }
+                        }
+                    }
+                    STATE.lastTrackingUpdate = now;
+                    trackingActions.updateDisplay();
+                }
+            }, 1000);
+            
+            return true;
+        },
+    
+        pause() {
+            if (STATE.isRunning) {
+                clearInterval(STATE.timer);
+                STATE.isRunning = false;
+                STATE.isPaused = true;
+                DOM.startButton.style.display = 'inline-block';
+                DOM.pauseButton.style.display = 'none';
+                DOM.stopButton.style.display = 'inline-block';
+                
+                const now = new Date();
+                const sessionDuration = Math.floor((now - STATE.sessionStartTime) / 1000);
+                
+                if (STATE.isWorkMode) {
+                    STATE.totalWorkSeconds += sessionDuration;
+                    if (STATE.currentProject) {
+                        const project = STATE.projects.find(p => p.id === STATE.currentProject);
+                        if (project) {
+                            project.workTime += sessionDuration;
+                            projectActions.saveProjects();
+                            projectActions.renderProjects();
+                            dataTracking.updateDailyData(project.id, sessionDuration, 0, 0);
+                        }
+                    }
+                } else {
+                    STATE.totalBreakSeconds += sessionDuration;
+                    if (STATE.currentProject) {
+                        const project = STATE.projects.find(p => p.id === STATE.currentProject);
+                        if (project) {
+                            project.breakTime += sessionDuration;
+                            projectActions.saveProjects();
+                            projectActions.renderProjects();
+                            dataTracking.updateDailyData(project.id, 0, sessionDuration, 0);
+                        }
+                    }
+                }
+                
+                trackingActions.updateDisplay();
+                STATE.sessionStartTime = null;
+            }
+        },
+    
+        stop() {
+            if (STATE.isRunning || STATE.isPaused) {
+                clearInterval(STATE.timer);
+                STATE.isRunning = false;
+                STATE.isPaused = false;
+                DOM.startButton.style.display = 'inline-block';
+                DOM.pauseButton.style.display = 'none';
+                DOM.stopButton.style.display = 'none';
+                
+                if (STATE.sessionStartTime) {
+                    const sessionEndTime = new Date();
+                    const sessionDuration = Math.floor((sessionEndTime - STATE.sessionStartTime) / 1000);
+                    
+                    if (STATE.isWorkMode) {
+                        STATE.totalWorkSeconds += sessionDuration;
+                        STATE.completedSessions++;
+                        if (STATE.currentProject) {
+                            const project = STATE.projects.find(p => p.id === STATE.currentProject);
+                            if (project) {
+                                project.pomodoros++;
+                                project.workTime += sessionDuration;
+                                projectActions.saveProjects();
+                                projectActions.renderProjects();
+                                dataTracking.updateDailyData(project.id, sessionDuration, 0, 1);
+                            }
+                        }
+                    } else {
+                        STATE.totalBreakSeconds += sessionDuration;
+                        if (STATE.currentProject) {
+                            const project = STATE.projects.find(p => p.id === STATE.currentProject);
+                            if (project) {
+                                project.breaks++;
                                 project.breakTime += sessionDuration;
                                 projectActions.saveProjects();
                                 projectActions.renderProjects();
@@ -2161,908 +2206,892 @@
                     trackingActions.updateDisplay();
                     STATE.sessionStartTime = null;
                 }
-            },
-
-            stop() {
-                if (STATE.isRunning || STATE.isPaused) {
-                    clearInterval(STATE.timer);
-                    STATE.isRunning = false;
-                    STATE.isPaused = false;
-                    DOM.startButton.style.display = 'inline-block';
-                    DOM.pauseButton.style.display = 'none';
-                    DOM.stopButton.style.display = 'none';
-                    
-                    if (STATE.sessionStartTime) {
-                        const sessionEndTime = new Date();
-                        const sessionDuration = Math.floor((sessionEndTime - STATE.sessionStartTime) / 1000);
-                        
-                        if (STATE.isWorkMode) {
-                            STATE.totalWorkSeconds += sessionDuration;
-                            STATE.completedSessions++;
-                            if (STATE.currentProject) {
-                                const project = STATE.projects.find(p => p.id === STATE.currentProject);
-                                if (project) {
-                                    project.pomodoros++;
-                                    project.workTime += sessionDuration;
-                                    projectActions.saveProjects();
-                                    projectActions.renderProjects();
-                                    dataTracking.updateDailyData(project.id, sessionDuration, 0, 1);
-                                }
-                            }
-                        } else {
-                            STATE.totalBreakSeconds += sessionDuration;
-                            if (STATE.currentProject) {
-                                const project = STATE.projects.find(p => p.id === STATE.currentProject);
-                                if (project) {
-                                    project.breaks++;
-                                    project.breakTime += sessionDuration;
-                                    projectActions.saveProjects();
-                                    projectActions.renderProjects();
-                                    dataTracking.updateDailyData(project.id, 0, sessionDuration, 0);
-                                }
-                            }
-                        }
-                        
-                        trackingActions.updateDisplay();
-                        STATE.sessionStartTime = null;
-                    }
-                }
-            },
-
-            updateDisplay() {
-                const minutes = Math.floor(Math.abs(STATE.totalSeconds) / 60);
-                const seconds = Math.abs(STATE.totalSeconds) % 60;
-                const sign = STATE.totalSeconds < 0 ? '-' : '';
-                DOM.timer.textContent = `${sign}${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                
-                if (STATE.totalSeconds < 0) {
-                    DOM.timer.classList.add('negative-timer');
+            }
+        },
+    
+        updateDisplay() {
+            const minutes = Math.floor(Math.abs(STATE.totalSeconds) / 60);
+            const seconds = Math.abs(STATE.totalSeconds) % 60;
+            const sign = STATE.totalSeconds < 0 ? '-' : '';
+            DOM.timer.textContent = `${sign}${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (STATE.totalSeconds < 0) {
+                DOM.timer.classList.add('negative-timer');
+            } else {
+                DOM.timer.classList.remove('negative-timer');
+                if (STATE.totalSeconds <= 60) {
+                    DOM.timer.style.color = '#f44336';
+                    DOM.timer.style.animation = 'pulse 1s infinite';
+                } else if (STATE.totalSeconds <= 300) {
+                    DOM.timer.style.color = '#ff9800';
+                    DOM.timer.style.animation = 'none';
                 } else {
-                    DOM.timer.classList.remove('negative-timer');
-                    if (STATE.totalSeconds <= 60) {
-                        DOM.timer.style.color = '#f44336';
-                        DOM.timer.style.animation = 'pulse 1s infinite';
-                    } else if (STATE.totalSeconds <= 300) {
-                        DOM.timer.style.color = '#ff9800';
-                        DOM.timer.style.animation = 'none';
-                    } else {
-                        DOM.timer.style.color = STATE.isWorkMode ? 'var(--work-text)' : 'var(--break-text)';
-                        DOM.timer.style.animation = 'none';
-                    }
-                }
-            },
-
-            setQuickTime(minutes, seconds, workMode) {
-                timerActions.stop();
-                DOM.timer.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                STATE.totalSeconds = minutes * 60 + seconds;
-                STATE.initialSeconds = STATE.totalSeconds;
-                STATE.isWorkMode = workMode;
-                DOM.timerProgress.style.background = `conic-gradient(var(--primary-blue) 0%, transparent 0%)`;
-                timerActions.updateDisplay();
-                timerActions.updateModeIndicator();
-                
-                DOM.body.classList.remove('work-mode', 'break-mode');
-                DOM.body.classList.add(STATE.isWorkMode ? 'work-mode' : 'break-mode');
-                
-                if (STATE.isWorkMode) {
-                    DOM.leftAnimalGif.src = 'https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif';
-                    DOM.rightAnimalGif.src = 'https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif';
-                } else {
-                    DOM.leftAnimalGif.src = STATE.breakGif;
-                    DOM.rightAnimalGif.src = STATE.breakGif;
-                }
-            },
-
-            setMode(workMode) {
-                STATE.isWorkMode = workMode;
-                timerActions.updateModeIndicator();
-                
-                DOM.body.classList.remove('work-mode', 'break-mode');
-                DOM.body.classList.add(STATE.isWorkMode ? 'work-mode' : 'break-mode');
-                
-                if (STATE.isWorkMode) {
-                    DOM.leftAnimalGif.src = 'assets/working-dog-animation.gif';
-                    DOM.rightAnimalGif.src = 'assets/working-dog-animation.gif';
-                } else {
-                    DOM.leftAnimalGif.src = STATE.breakGif;
-                    DOM.rightAnimalGif.src = STATE.breakGif;
-                }
-            },
-
-            updateModeIndicator() {
-                if (STATE.isWorkMode) {
-                    DOM.modeIndicator.textContent = "Work Time";
-                    DOM.modeIndicator.className = "mode-indicator work-mode";
-                } else {
-                    DOM.modeIndicator.textContent = "Break Time";
-                    DOM.modeIndicator.className = "mode-indicator break-mode";
+                    DOM.timer.style.color = STATE.isWorkMode ? 'var(--work-text)' : 'var(--break-text)';
+                    DOM.timer.style.animation = 'none';
                 }
             }
-        };
-
-        // ========== Project Tracking Functions ==========
-        const projectActions = {
-            addProject() {
-                const projectName = DOM.projectInput.value.trim();
-                if (projectName) {
-                    const project = {
-                        id: Date.now().toString(),
-                        name: projectName,
-                        pomodoros: 0,
-                        breaks: 0,
-                        workTime: 0,
-                        breakTime: 0,
-                        notes: ''
-                    };
-                    
-                    STATE.projects.push(project);
-                    this.saveProjects();
-                    this.renderProjects();
-                    DOM.projectInput.value = '';
-                }
-            },
+        },
+    
+        setQuickTime(minutes, seconds, workMode) {
+            timerActions.stop();
+            DOM.timer.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            STATE.totalSeconds = minutes * 60 + seconds;
+            STATE.initialSeconds = STATE.totalSeconds;
+            STATE.isWorkMode = workMode;
+            DOM.timerProgress.style.background = `conic-gradient(var(--primary-blue) 0%, transparent 0%)`;
+            timerActions.updateDisplay();
+            timerActions.updateModeIndicator();
             
-            deleteProject(id) {
-                STATE.projects = STATE.projects.filter(project => project.id !== id);
-                if (STATE.currentProject === id) {
-                    STATE.currentProject = null;
-                }
+            DOM.body.classList.remove('work-mode', 'break-mode');
+            DOM.body.classList.add(STATE.isWorkMode ? 'work-mode' : 'break-mode');
+            
+            if (STATE.isWorkMode) {
+                DOM.leftAnimalGif.src = 'assets/working-dog-animation.gif';
+                DOM.rightAnimalGif.src = 'assets/working-dog-animation.gif';
+            } else {
+                DOM.leftAnimalGif.src = STATE.breakGif;
+                DOM.rightAnimalGif.src = STATE.breakGif;
+            }
+        },
+    
+        setMode(workMode) {
+            STATE.isWorkMode = workMode;
+            timerActions.updateModeIndicator();
+            
+            DOM.body.classList.remove('work-mode', 'break-mode');
+            DOM.body.classList.add(STATE.isWorkMode ? 'work-mode' : 'break-mode');
+            
+            if (STATE.isWorkMode) {
+                DOM.leftAnimalGif.src = 'assets/working-dog-animation.gif';
+                DOM.rightAnimalGif.src = 'assets/working-dog-animation.gif';
+            } else {
+                DOM.leftAnimalGif.src = STATE.breakGif;
+                DOM.rightAnimalGif.src = STATE.breakGif;
+            }
+        },
+    
+        updateModeIndicator() {
+            if (STATE.isWorkMode) {
+                DOM.modeIndicator.textContent = "Work Time";
+                DOM.modeIndicator.className = "mode-indicator work-mode";
+            } else {
+                DOM.modeIndicator.textContent = "Break Time";
+                DOM.modeIndicator.className = "mode-indicator break-mode";
+            }
+        }
+    };
+    
+    // ========== Project Tracking Functions ==========
+    const projectActions = {
+        addProject() {
+            const projectName = DOM.projectInput.value.trim();
+            if (projectName) {
+                const project = {
+                    id: Date.now().toString(),
+                    name: projectName,
+                    pomodoros: 0,
+                    breaks: 0,
+                    workTime: 0,
+                    breakTime: 0,
+                    notes: ''
+                };
+                
+                STATE.projects.push(project);
                 this.saveProjects();
                 this.renderProjects();
-            },
-            
-            setCurrentProject(id) {
-                if (STATE.currentProject === id) {
-                    STATE.currentProject = null;
-                } else {
-                    STATE.currentProject = id;
-                }
-                this.renderProjects();
-            },
-            
-            saveProjects() {
-                localStorage.setItem('projects', JSON.stringify(STATE.projects));
-            },
-            
-            loadProjects() {
-                const savedProjects = localStorage.getItem('projects');
-                if (savedProjects) {
-                    STATE.projects = JSON.parse(savedProjects);
-                    this.renderProjects();
-                }
-            },
-            
-            renderProjects() {
-                DOM.projectList.innerHTML = '';
-
-                const formatProjectTime = (seconds) => {
-                    const hours = Math.floor(seconds / 3600);
-                    const minutes = Math.floor((seconds % 3600) / 60);
-                    return `${hours}h ${minutes}m`;
-                };
-
-                STATE.projects.forEach(project => {
-                    const projectItem = document.createElement('div');
-                    projectItem.className = `project-item ${project.id === STATE.currentProject ? 'selected' : ''}`;
-                    projectItem.dataset.id = project.id;
-
-                    projectItem.innerHTML = `
-                        <div class="project-main-content">
-                            <div class="project-name editable" contenteditable="true">${project.name}</div>
-                            <div class="project-stats">
-                                <div class="project-stat">
-                                    <span>🍅</span>
-                                    <span class="editable" contenteditable="true">${project.pomodoros}</span>
-                                    <span class="project-time">${formatProjectTime(project.workTime || 0)}</span>
-                                </div>
-                                <div class="project-stat">
-                                    <span>☕</span>
-                                    <span class="editable" contenteditable="true">${project.breaks}</span>
-                                    <span class="project-time">${formatProjectTime(project.breakTime || 0)}</span>
-                                </div>
-                            </div>
-                            <div class="project-actions">
-                                <button class="project-action-btn" onclick="projectActions.setCurrentProject('${project.id}')">
-                                    ${project.id === STATE.currentProject ? 'Untrack' : 'Track'}
-                                </button>
-                                <button class="project-action-btn" onclick="projectActions.deleteProject('${project.id}')">Delete</button>
-                            </div>
-                        </div>
-                        <div class="project-notes-section">
-                            <button class="project-notes-toggle">Notes</button>
-                            <textarea class="project-notes" placeholder="Add notes about this project...">${project.notes || ''}</textarea>
-                        </div>
-                    `;
-
-                    DOM.projectList.appendChild(projectItem);
-
-                    const notesToggle = projectItem.querySelector('.project-notes-toggle');
-                    const notesTextarea = projectItem.querySelector('.project-notes');
-
-                    // Initialize notes as hidden
-                    notesTextarea.style.display = 'none';
-
-                    notesToggle.addEventListener('click', () => {
-                        const isExpanded = notesTextarea.style.display === 'block';
-                        notesTextarea.style.display = isExpanded ? 'none' : 'block';
-                        notesToggle.classList.toggle('expanded');
-                    });
-
-                    notesTextarea.addEventListener('blur', () => {
-                        project.notes = notesTextarea.value;
-                        this.saveProjects();
-                    });
-
-                    // Automatically resize the textarea as the user types
-                    notesTextarea.addEventListener('input', () => {
-                        notesTextarea.style.height = 'auto'; // Reset height to calculate the new height
-                        notesTextarea.style.height = `${notesTextarea.scrollHeight}px`; // Set height based on content
-                    });
-
-                    const nameEditable = projectItem.querySelector('.project-name');
-                    const pomodoroEditable = projectItem.querySelector('.project-stat:nth-child(1) .editable');
-                    const breakEditable = projectItem.querySelector('.project-stat:nth-child(2) .editable');
-
-                    nameEditable.addEventListener('blur', () => {
-                        project.name = nameEditable.textContent;
-                        this.saveProjects();
-                    });
-
-                    pomodoroEditable.addEventListener('blur', () => {
-                        const value = parseInt(pomodoroEditable.textContent) || 0;
-                        project.pomodoros = value;
-                        this.saveProjects();
-                    });
-
-                    breakEditable.addEventListener('blur', () => {
-                        const value = parseInt(breakEditable.textContent) || 0;
-                        project.breaks = value;
-                        this.saveProjects();
-                    });
-                });
+                DOM.projectInput.value = '';
             }
-        };
-
-        // ========== Data Tracking Functions ==========
-        const dataTracking = {
-            init() {
-                this.loadData();
-                this.setupEventListeners();
-                this.updateDateSelectors();
-            },
-
-            setupEventListeners() {
-                // Tab switching
-                document.querySelectorAll('.data-tab-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        document.querySelectorAll('.data-tab-btn').forEach(b => b.classList.remove('active'));
-                        document.querySelectorAll('.data-tab-content').forEach(c => c.classList.remove('active'));
-                        
-                        btn.classList.add('active');
-                        document.getElementById(`${btn.dataset.tab}-data-tab`).classList.add('active');
-                        
-                        // Update the displayed data when switching tabs
-                        if (btn.dataset.tab === 'daily') {
-                            this.updateDailyDataDisplay();
-                        } else if (btn.dataset.tab === 'weekly') {
-                            this.updateWeeklyDataDisplay();
-                        } else if (btn.dataset.tab === 'monthly') {
-                            this.updateMonthlyDataDisplay();
-                        }
-                    });
-                });
-
-                // Date selection changes
-                DOM.dailyDateSelect.addEventListener('change', () => this.updateDailyDataDisplay());
-                DOM.weeklyDateSelect.addEventListener('change', () => this.updateWeeklyDataDisplay());
-                DOM.monthlyDateSelect.addEventListener('change', () => this.updateMonthlyDataDisplay());
-
-                // Close button
-                DOM.closeDataTracking.addEventListener('click', () => {
-                    document.getElementById('dataTrackingPanel').classList.remove('show');
-                });
-            },
-
-            loadData() {
-                const savedDailyData = localStorage.getItem('dailyData');
-                const savedWeeklyData = localStorage.getItem('weeklyData');
-                const savedMonthlyData = localStorage.getItem('monthlyData');
-                
-                STATE.dailyData = savedDailyData ? JSON.parse(savedDailyData) : {};
-                STATE.weeklyData = savedWeeklyData ? JSON.parse(savedWeeklyData) : {};
-                STATE.monthlyData = savedMonthlyData ? JSON.parse(savedMonthlyData) : {};
-            },
-
-            saveData() {
-                localStorage.setItem('dailyData', JSON.stringify(STATE.dailyData));
-                localStorage.setItem('weeklyData', JSON.stringify(STATE.weeklyData));
-                localStorage.setItem('monthlyData', JSON.stringify(STATE.monthlyData));
-            },
-
-            updateDailyData(projectId, workSeconds = 0, breakSeconds = 0, pomodoros = 0) {
-                const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
-                
-                if (!STATE.dailyData[today]) {
-                    STATE.dailyData[today] = {
-                        date: today,
-                        projects: {},
-                        totalWork: 0,
-                        totalBreak: 0,
-                        totalPomodoros: 0
-                    };
-                }
-                
-                if (!STATE.dailyData[today].projects[projectId]) {
-                    STATE.dailyData[today].projects[projectId] = {
-                        workTime: 0,
-                        breakTime: 0,
-                        pomodoros: 0,
-                        name: STATE.projects.find(p => p.id === projectId)?.name || 'Unknown Project'
-                    };
-                }
-                
-                STATE.dailyData[today].projects[projectId].workTime += workSeconds;
-                STATE.dailyData[today].projects[projectId].breakTime += breakSeconds;
-                STATE.dailyData[today].projects[projectId].pomodoros += pomodoros;
-                
-                STATE.dailyData[today].totalWork += workSeconds;
-                STATE.dailyData[today].totalBreak += breakSeconds;
-                STATE.dailyData[today].totalPomodoros += pomodoros;
-                
-                // Update weekly data
-                this.updateWeeklyData(projectId, workSeconds, breakSeconds, pomodoros);
-                
-                this.saveData();
-            },
-
-            updateWeeklyData(projectId, workSeconds = 0, breakSeconds = 0, pomodoros = 0) {
-                const now = new Date();
-                const year = now.getFullYear();
-                const weekNumber = this.getWeekNumber(now);
-                const weekKey = `${year}-W${weekNumber.toString().padStart(2, '0')}`;
-                
-                if (!STATE.weeklyData[weekKey]) {
-                    STATE.weeklyData[weekKey] = {
-                        year,
-                        weekNumber,
-                        projects: {},
-                        totalWork: 0,
-                        totalBreak: 0,
-                        totalPomodoros: 0,
-                        daysWorked: new Set()
-                    };
-                }
-                
-                if (!STATE.weeklyData[weekKey].projects[projectId]) {
-                    STATE.weeklyData[weekKey].projects[projectId] = {
-                        workTime: 0,
-                        breakTime: 0,
-                        pomodoros: 0,
-                        name: STATE.projects.find(p => p.id === projectId)?.name || 'Unknown Project'
-                    };
-                }
-                
-                STATE.weeklyData[weekKey].projects[projectId].workTime += workSeconds;
-                STATE.weeklyData[weekKey].projects[projectId].breakTime += breakSeconds;
-                STATE.weeklyData[weekKey].projects[projectId].pomodoros += pomodoros;
-                
-                STATE.weeklyData[weekKey].totalWork += workSeconds;
-                STATE.weeklyData[weekKey].totalBreak += breakSeconds;
-                STATE.weeklyData[weekKey].totalPomodoros += pomodoros;
-                
-                // Mark today as a worked day
-                const today = new Date().toISOString().split('T')[0];
-                STATE.weeklyData[weekKey].daysWorked.add(today);
-                
-                // Update monthly data
-                this.updateMonthlyData(projectId, workSeconds, breakSeconds, pomodoros);
-                
-                this.saveData();
-            },
-
-            updateMonthlyData(projectId, workSeconds = 0, breakSeconds = 0, pomodoros = 0) {
-                const now = new Date();
-                const year = now.getFullYear();
-                const month = now.getMonth() + 1; // 1-12
-                const monthKey = `${year}-${month.toString().padStart(2, '0')}`;
-                
-                if (!STATE.monthlyData[monthKey]) {
-                    STATE.monthlyData[monthKey] = {
-                        year,
-                        month,
-                        projects: {},
-                        totalWork: 0,
-                        totalBreak: 0,
-                        totalPomodoros: 0,
-                        daysWorked: new Set()
-                    };
-                }
-                
-                if (!STATE.monthlyData[monthKey].projects[projectId]) {
-                    STATE.monthlyData[monthKey].projects[projectId] = {
-                        workTime: 0,
-                        breakTime: 0,
-                        pomodoros: 0,
-                        name: STATE.projects.find(p => p.id === projectId)?.name || 'Unknown Project'
-                    };
-                }
-                
-                STATE.monthlyData[monthKey].projects[projectId].workTime += workSeconds;
-                STATE.monthlyData[monthKey].projects[projectId].breakTime += breakSeconds;
-                STATE.monthlyData[monthKey].projects[projectId].pomodoros += pomodoros;
-                
-                STATE.monthlyData[monthKey].totalWork += workSeconds;
-                STATE.monthlyData[monthKey].totalBreak += breakSeconds;
-                STATE.monthlyData[monthKey].totalPomodoros += pomodoros;
-                
-                // Mark today as a worked day
-                const today = new Date().toISOString().split('T')[0];
-                STATE.monthlyData[monthKey].daysWorked.add(today);
-                
-                this.saveData();
-            },
-
-            getWeekNumber(date) {
-                const d = new Date(date);
-                d.setHours(0, 0, 0, 0);
-                d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7);
-                const week1 = new Date(d.getFullYear(), 0, 4);
-                return 1 + Math.round(((d - week1) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
-            },
-
-            formatTime(seconds) {
+        },
+        
+        deleteProject(id) {
+            STATE.projects = STATE.projects.filter(project => project.id !== id);
+            if (STATE.currentProject === id) {
+                STATE.currentProject = null;
+            }
+            this.saveProjects();
+            this.renderProjects();
+        },
+        
+        setCurrentProject(id) {
+            if (STATE.currentProject === id) {
+                STATE.currentProject = null;
+            } else {
+                STATE.currentProject = id;
+            }
+            this.renderProjects();
+        },
+        
+        saveProjects() {
+            localStorage.setItem('projects', JSON.stringify(STATE.projects));
+        },
+        
+        loadProjects() {
+            const savedProjects = localStorage.getItem('projects');
+            if (savedProjects) {
+                STATE.projects = JSON.parse(savedProjects);
+                this.renderProjects();
+            }
+        },
+        
+        renderProjects() {
+            DOM.projectList.innerHTML = '';
+    
+            const formatProjectTime = (seconds) => {
                 const hours = Math.floor(seconds / 3600);
                 const minutes = Math.floor((seconds % 3600) / 60);
-                const secs = seconds % 60;
-                return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-            },
-
-            updateDateSelectors() {
-                // Update daily date selector
-                DOM.dailyDateSelect.innerHTML = '';
-                const dailyDates = Object.keys(STATE.dailyData).sort().reverse();
-                dailyDates.forEach(date => {
-                    const option = document.createElement('option');
-                    option.value = date;
-                    option.textContent = new Date(date).toLocaleDateString();
-                    DOM.dailyDateSelect.appendChild(option);
-                });
-                
-                // Update weekly date selector
-                DOM.weeklyDateSelect.innerHTML = '';
-                const weeklyKeys = Object.keys(STATE.weeklyData).sort().reverse();
-                weeklyKeys.forEach(key => {
-                    const option = document.createElement('option');
-                    option.value = key;
-                    const [year, week] = key.split('-W');
-                    option.textContent = `Week ${week}, ${year}`;
-                    DOM.weeklyDateSelect.appendChild(option);
-                });
-                
-                // Update monthly date selector
-                DOM.monthlyDateSelect.innerHTML = '';
-                const monthlyKeys = Object.keys(STATE.monthlyData).sort().reverse();
-                monthlyKeys.forEach(key => {
-                    const option = document.createElement('option');
-                    option.value = key;
-                    const [year, month] = key.split('-');
-                    const monthName = new Date(year, parseInt(month) - 1, 1).toLocaleString('default', { month: 'long' });
-                    option.textContent = `${monthName} ${year}`;
-                    DOM.monthlyDateSelect.appendChild(option);
-                });
-            },
-
-            updateDailyDataDisplay() {
-                const selectedDate = DOM.dailyDateSelect.value;
-                if (!selectedDate || !STATE.dailyData[selectedDate]) {
-                    DOM.dailyDataBody.innerHTML = '<tr><td colspan="4">No data available for this date</td></tr>';
-                    DOM.dailyWorkSummary.textContent = '00:00:00';
-                    DOM.dailyBreakSummary.textContent = '00:00:00';
-                    DOM.dailyPomodorosSummary.textContent = '0';
-                    return;
-                }
-                
-                const dailyData = STATE.dailyData[selectedDate];
-                
-                // Update summary
-                DOM.dailyWorkSummary.textContent = this.formatTime(dailyData.totalWork);
-                DOM.dailyBreakSummary.textContent = this.formatTime(dailyData.totalBreak);
-                DOM.dailyPomodorosSummary.textContent = dailyData.totalPomodoros.toString();
-                
-                // Update table
-                DOM.dailyDataBody.innerHTML = '';
-                
-                Object.entries(dailyData.projects).forEach(([projectId, projectData]) => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${projectData.name}</td>
-                        <td>${this.formatTime(projectData.workTime)}</td>
-                        <td>${this.formatTime(projectData.breakTime)}</td>
-                        <td>${projectData.pomodoros}</td>
-                    `;
-                    DOM.dailyDataBody.appendChild(row);
-                });
-            },
-
-            updateWeeklyDataDisplay() {
-                const selectedWeek = DOM.weeklyDateSelect.value;
-                if (!selectedWeek || !STATE.weeklyData[selectedWeek]) {
-                    DOM.weeklyDataBody.innerHTML = '<tr><td colspan="4">No data available for this week</td></tr>';
-                    DOM.weeklyWorkSummary.textContent = '00:00:00';
-                    DOM.weeklyBreakSummary.textContent = '00:00:00';
-                    DOM.weeklyPomodorosSummary.textContent = '0';
-                    DOM.weeklyDaysSummary.textContent = '0';
-                    return;
-                }
-                
-                const weeklyData = STATE.weeklyData[selectedWeek];
-                
-                // Update summary
-                DOM.weeklyWorkSummary.textContent = this.formatTime(weeklyData.totalWork);
-                DOM.weeklyBreakSummary.textContent = this.formatTime(weeklyData.totalBreak);
-                DOM.weeklyPomodorosSummary.textContent = weeklyData.totalPomodoros.toString();
-                DOM.weeklyDaysSummary.textContent = weeklyData.daysWorked.size.toString();
-                
-                // Update table
-                DOM.weeklyDataBody.innerHTML = '';
-                
-                Object.entries(weeklyData.projects).forEach(([projectId, projectData]) => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${projectData.name}</td>
-                        <td>${this.formatTime(projectData.workTime)}</td>
-                        <td>${this.formatTime(projectData.breakTime)}</td>
-                        <td>${projectData.pomodoros}</td>
-                    `;
-                    DOM.weeklyDataBody.appendChild(row);
-                });
-            },
-
-            updateMonthlyDataDisplay() {
-                const selectedMonth = DOM.monthlyDateSelect.value;
-                if (!selectedMonth || !STATE.monthlyData[selectedMonth]) {
-                    DOM.monthlyDataBody.innerHTML = '<tr><td colspan="4">No data available for this month</td></tr>';
-                    DOM.monthlyWorkSummary.textContent = '00:00:00';
-                    DOM.monthlyBreakSummary.textContent = '00:00:00';
-                    DOM.monthlyPomodorosSummary.textContent = '0';
-                    DOM.monthlyDaysSummary.textContent = '0';
-                    return;
-                }
-                
-                const monthlyData = STATE.monthlyData[selectedMonth];
-                
-                // Update summary
-                DOM.monthlyWorkSummary.textContent = this.formatTime(monthlyData.totalWork);
-                DOM.monthlyBreakSummary.textContent = this.formatTime(monthlyData.totalBreak);
-                DOM.monthlyPomodorosSummary.textContent = monthlyData.totalPomodoros.toString();
-                DOM.monthlyDaysSummary.textContent = monthlyData.daysWorked.size.toString();
-                
-                // Update table
-                DOM.monthlyDataBody.innerHTML = '';
-                
-                Object.entries(monthlyData.projects).forEach(([projectId, projectData]) => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${projectData.name}</td>
-                        <td>${this.formatTime(projectData.workTime)}</td>
-                        <td>${this.formatTime(projectData.breakTime)}</td>
-                        <td>${projectData.pomodoros}</td>
-                    `;
-                    DOM.monthlyDataBody.appendChild(row);
-                });
-            },
-
-            exportToWord(timePeriod) {
-                let title, data, summary;
-                
-                if (timePeriod === 'daily') {
-                    const selectedDate = DOM.dailyDateSelect.value;
-                    if (!selectedDate || !STATE.dailyData[selectedDate]) return;
-                    
-                    data = STATE.dailyData[selectedDate];
-                    title = `Daily Report - ${new Date(selectedDate).toLocaleDateString()}`;
-                    
-                    summary = [
-                        `Total Work Time: ${this.formatTime(data.totalWork)}`,
-                        `Total Break Time: ${this.formatTime(data.totalBreak)}`,
-                        `Pomodoros Completed: ${data.totalPomodoros}`
-                    ];
-                } else if (timePeriod === 'weekly') {
-                    const selectedWeek = DOM.weeklyDateSelect.value;
-                    if (!selectedWeek || !STATE.weeklyData[selectedWeek]) return;
-                    
-                    data = STATE.weeklyData[selectedWeek];
-                    const [year, week] = selectedWeek.split('-W');
-                    title = `Weekly Report - Week ${week}, ${year}`;
-                    
-                    summary = [
-                        `Total Work Time: ${this.formatTime(data.totalWork)}`,
-                        `Total Break Time: ${this.formatTime(data.totalBreak)}`,
-                        `Pomodoros Completed: ${data.totalPomodoros}`,
-                        `Days Worked: ${data.daysWorked.size}`
-                    ];
-                } else if (timePeriod === 'monthly') {
-                    const selectedMonth = DOM.monthlyDateSelect.value;
-                    if (!selectedMonth || !STATE.monthlyData[selectedMonth]) return;
-                    
-                    data = STATE.monthlyData[selectedMonth];
-                    const [year, month] = selectedMonth.split('-');
-                    const monthName = new Date(year, parseInt(month) - 1, 1).toLocaleString('default', { month: 'long' });
-                    title = `Monthly Report - ${monthName} ${year}`;
-                    
-                    summary = [
-                        `Total Work Time: ${this.formatTime(data.totalWork)}`,
-                        `Total Break Time: ${this.formatTime(data.totalBreak)}`,
-                        `Pomodoros Completed: ${data.totalPomodoros}`,
-                        `Days Worked: ${data.daysWorked.size}`
-                    ];
-                } else {
-                    return;
-                }
-                
-                // Create HTML content for the Word document
-                let htmlContent = `
-                    <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-                    <head>
-                        <title>${title}</title>
-                        <style>
-                            body { font-family: Arial, sans-serif; }
-                            h1 { color: #2e6c80; }
-                            table { border-collapse: collapse; width: 100%; }
-                            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-                            th { background-color: #f2f2f2; }
-                        </style>
-                    </head>
-                    <body>
-                        <h1>${title}</h1>
-                        <h2>Summary</h2>
-                        <ul>
-                            ${summary.map(item => `<li>${item}</li>`).join('')}
-                        </ul>
-                        <h2>Project Details</h2>
-                        <table>
-                            <tr>
-                                <th>Project</th>
-                                <th>Work Time</th>
-                                <th>Break Time</th>
-                                <th>Pomodoros</th>
-                            </tr>
+                return `${hours}h ${minutes}m`;
+            };
+    
+            STATE.projects.forEach(project => {
+                const projectItem = document.createElement('div');
+                projectItem.className = `project-item ${project.id === STATE.currentProject ? 'selected' : ''}`;
+                projectItem.dataset.id = project.id;
+    
+                projectItem.innerHTML = `
+                    <div class="project-main-content">
+                        <div class="project-name editable" contenteditable="true">${project.name}</div>
+                        <div class="project-stats">
+                            <div class="project-stat">
+                                <span>🍅</span>
+                                <span class="editable" contenteditable="true">${project.pomodoros}</span>
+                                <span class="project-time">${formatProjectTime(project.workTime || 0)}</span>
+                            </div>
+                            <div class="project-stat">
+                                <span>☕</span>
+                                <span class="editable" contenteditable="true">${project.breaks}</span>
+                                <span class="project-time">${formatProjectTime(project.breakTime || 0)}</span>
+                            </div>
+                        </div>
+                        <div class="project-actions">
+                            <button class="project-action-btn" onclick="projectActions.setCurrentProject('${project.id}')">
+                                ${project.id === STATE.currentProject ? 'Untrack' : 'Track'}
+                            </button>
+                            <button class="project-action-btn" onclick="projectActions.deleteProject('${project.id}')">Delete</button>
+                        </div>
+                    </div>
+                    <div class="project-notes-section">
+                        <button class="project-notes-toggle">Notes</button>
+                        <textarea class="project-notes" placeholder="Add notes about this project...">${project.notes || ''}</textarea>
+                    </div>
                 `;
-                
-                // Add project rows
-                Object.entries(data.projects).forEach(([projectId, projectData]) => {
-                    htmlContent += `
-                        <tr>
-                            <td>${projectData.name}</td>
-                            <td>${this.formatTime(projectData.workTime)}</td>
-                            <td>${this.formatTime(projectData.breakTime)}</td>
-                            <td>${projectData.pomodoros}</td>
-                        </tr>
-                    `;
+    
+                DOM.projectList.appendChild(projectItem);
+    
+                const notesToggle = projectItem.querySelector('.project-notes-toggle');
+                const notesTextarea = projectItem.querySelector('.project-notes');
+    
+                // Initialize notes as hidden
+                notesTextarea.style.display = 'none';
+    
+                notesToggle.addEventListener('click', () => {
+                    const isExpanded = notesTextarea.style.display === 'block';
+                    notesTextarea.style.display = isExpanded ? 'none' : 'block';
+                    notesToggle.classList.toggle('expanded');
                 });
-                
-                htmlContent += `
-                        </table>
-                    </body>
-                    </html>
-                `;
-                
-                // Create a Blob with the HTML content
-                const blob = new Blob(['\ufeff', htmlContent], {
-                    type: 'application/msword'
+    
+                notesTextarea.addEventListener('blur', () => {
+                    project.notes = notesTextarea.value;
+                    this.saveProjects();
                 });
-                
-                // Create download link
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `${title.replace(/ /g, '_')}.doc`;
-                document.body.appendChild(a);
-                a.click();
-                
-                // Clean up
-                setTimeout(() => {
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                }, 100);
-            }
-        };
-
-        // ========== Celebration Functions ==========
-        const celebrationActions = {
-            triggerCelebration() {
-                // Create confetti
-                this.createConfetti();
-                
-                // Pulse animation for the container
-                DOM.container.style.animation = 'pulse 0.5s 3';
-                setTimeout(() => {
-                    DOM.container.style.animation = '';
-                }, 1500);
-            },
+    
+                // Automatically resize the textarea as the user types
+                notesTextarea.addEventListener('input', () => {
+                    notesTextarea.style.height = 'auto'; // Reset height to calculate the new height
+                    notesTextarea.style.height = `${notesTextarea.scrollHeight}px`; // Set height based on content
+                });
+    
+                const nameEditable = projectItem.querySelector('.project-name');
+                const pomodoroEditable = projectItem.querySelector('.project-stat:nth-child(1) .editable');
+                const breakEditable = projectItem.querySelector('.project-stat:nth-child(2) .editable');
+    
+                nameEditable.addEventListener('blur', () => {
+                    project.name = nameEditable.textContent;
+                    this.saveProjects();
+                });
+    
+                pomodoroEditable.addEventListener('blur', () => {
+                    const value = parseInt(pomodoroEditable.textContent) || 0;
+                    project.pomodoros = value;
+                    this.saveProjects();
+                });
+    
+                breakEditable.addEventListener('blur', () => {
+                    const value = parseInt(breakEditable.textContent) || 0;
+                    project.breaks = value;
+                    this.saveProjects();
+                });
+            });
+        }
+    };
+    
+    // ========== Data Tracking Functions ==========
+    const dataTracking = {
+        init() {
+            this.loadData();
+            this.setupEventListeners();
+            this.updateDateSelectors();
+        },
+    
+        setupEventListeners() {
+            // Tab switching
+            document.querySelectorAll('.data-tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.data-tab-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.data-tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    btn.classList.add('active');
+                    document.getElementById(`${btn.dataset.tab}-data-tab`).classList.add('active');
+                    
+                    // Update the displayed data when switching tabs
+                    if (btn.dataset.tab === 'daily') {
+                        this.updateDailyDataDisplay();
+                    } else if (btn.dataset.tab === 'weekly') {
+                        this.updateWeeklyDataDisplay();
+                    } else if (btn.dataset.tab === 'monthly') {
+                        this.updateMonthlyDataDisplay();
+                    }
+                });
+            });
+    
+            // Date selection changes
+            DOM.dailyDateSelect.addEventListener('change', () => this.updateDailyDataDisplay());
+            DOM.weeklyDateSelect.addEventListener('change', () => this.updateWeeklyDataDisplay());
+            DOM.monthlyDateSelect.addEventListener('change', () => this.updateMonthlyDataDisplay());
+    
+            // Close button
+            DOM.closeDataTracking.addEventListener('click', () => {
+                document.getElementById('dataTrackingPanel').classList.remove('show');
+            });
+        },
+    
+        loadData() {
+            const savedDailyData = localStorage.getItem('dailyData');
+            const savedWeeklyData = localStorage.getItem('weeklyData');
+            const savedMonthlyData = localStorage.getItem('monthlyData');
             
-            createConfetti() {
-                const confettiContainer = document.createElement('div');
-                confettiContainer.className = 'confetti-container';
-                document.body.appendChild(confettiContainer);
+            STATE.dailyData = savedDailyData ? JSON.parse(savedDailyData) : {};
+            STATE.weeklyData = savedWeeklyData ? JSON.parse(savedWeeklyData) : {};
+            STATE.monthlyData = savedMonthlyData ? JSON.parse(savedMonthlyData) : {};
+        },
+    
+        saveData() {
+            localStorage.setItem('dailyData', JSON.stringify(STATE.dailyData));
+            localStorage.setItem('weeklyData', JSON.stringify(STATE.weeklyData));
+            localStorage.setItem('monthlyData', JSON.stringify(STATE.monthlyData));
+        },
+    
+        updateDailyData(projectId, workSeconds = 0, breakSeconds = 0, pomodoros = 0) {
+            const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+            
+            if (!STATE.dailyData[today]) {
+                STATE.dailyData[today] = {
+                    date: today,
+                    projects: {},
+                    totalWork: 0,
+                    totalBreak: 0,
+                    totalPomodoros: 0
+                };
+            }
+            
+            if (!STATE.dailyData[today].projects[projectId]) {
+                STATE.dailyData[today].projects[projectId] = {
+                    workTime: 0,
+                    breakTime: 0,
+                    pomodoros: 0,
+                    name: STATE.projects.find(p => p.id === projectId)?.name || 'Unknown Project'
+                };
+            }
+            
+            STATE.dailyData[today].projects[projectId].workTime += workSeconds;
+            STATE.dailyData[today].projects[projectId].breakTime += breakSeconds;
+            STATE.dailyData[today].projects[projectId].pomodoros += pomodoros;
+            
+            STATE.dailyData[today].totalWork += workSeconds;
+            STATE.dailyData[today].totalBreak += breakSeconds;
+            STATE.dailyData[today].totalPomodoros += pomodoros;
+            
+            // Update weekly data
+            this.updateWeeklyData(projectId, workSeconds, breakSeconds, pomodoros);
+            
+            this.saveData();
+        },
+    
+        updateWeeklyData(projectId, workSeconds = 0, breakSeconds = 0, pomodoros = 0) {
+            const now = new Date();
+            const year = now.getFullYear();
+            const weekNumber = this.getWeekNumber(now);
+            const weekKey = `${year}-W${weekNumber.toString().padStart(2, '0')}`;
+            
+            if (!STATE.weeklyData[weekKey]) {
+                STATE.weeklyData[weekKey] = {
+                    year,
+                    weekNumber,
+                    projects: {},
+                    totalWork: 0,
+                    totalBreak: 0,
+                    totalPomodoros: 0,
+                    daysWorked: new Set()
+                };
+            }
+            
+            if (!STATE.weeklyData[weekKey].projects[projectId]) {
+                STATE.weeklyData[weekKey].projects[projectId] = {
+                    workTime: 0,
+                    breakTime: 0,
+                    pomodoros: 0,
+                    name: STATE.projects.find(p => p.id === projectId)?.name || 'Unknown Project'
+                };
+            }
+            
+            STATE.weeklyData[weekKey].projects[projectId].workTime += workSeconds;
+            STATE.weeklyData[weekKey].projects[projectId].breakTime += breakSeconds;
+            STATE.weeklyData[weekKey].projects[projectId].pomodoros += pomodoros;
+            
+            STATE.weeklyData[weekKey].totalWork += workSeconds;
+            STATE.weeklyData[weekKey].totalBreak += breakSeconds;
+            STATE.weeklyData[weekKey].totalPomodoros += pomodoros;
+            
+            // Mark today as a worked day
+            const today = new Date().toISOString().split('T')[0];
+            STATE.weeklyData[weekKey].daysWorked.add(today);
+            
+            // Update monthly data
+            this.updateMonthlyData(projectId, workSeconds, breakSeconds, pomodoros);
+            
+            this.saveData();
+        },
+    
+        updateMonthlyData(projectId, workSeconds = 0, breakSeconds = 0, pomodoros = 0) {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth() + 1; // 1-12
+            const monthKey = `${year}-${month.toString().padStart(2, '0')}`;
+            
+            if (!STATE.monthlyData[monthKey]) {
+                STATE.monthlyData[monthKey] = {
+                    year,
+                    month,
+                    projects: {},
+                    totalWork: 0,
+                    totalBreak: 0,
+                    totalPomodoros: 0,
+                    daysWorked: new Set()
+                };
+            }
+            
+            if (!STATE.monthlyData[monthKey].projects[projectId]) {
+                STATE.monthlyData[monthKey].projects[projectId] = {
+                    workTime: 0,
+                    breakTime: 0,
+                    pomodoros: 0,
+                    name: STATE.projects.find(p => p.id === projectId)?.name || 'Unknown Project'
+                };
+            }
+            
+            STATE.monthlyData[monthKey].projects[projectId].workTime += workSeconds;
+            STATE.monthlyData[monthKey].projects[projectId].breakTime += breakSeconds;
+            STATE.monthlyData[monthKey].projects[projectId].pomodoros += pomodoros;
+            
+            STATE.monthlyData[monthKey].totalWork += workSeconds;
+            STATE.monthlyData[monthKey].totalBreak += breakSeconds;
+            STATE.monthlyData[monthKey].totalPomodoros += pomodoros;
+            
+            // Mark today as a worked day
+            const today = new Date().toISOString().split('T')[0];
+            STATE.monthlyData[monthKey].daysWorked.add(today);
+            
+            this.saveData();
+        },
+    
+        getWeekNumber(date) {
+            const d = new Date(date);
+            d.setHours(0, 0, 0, 0);
+            d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7);
+            const week1 = new Date(d.getFullYear(), 0, 4);
+            return 1 + Math.round(((d - week1) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+        },
+    
+        formatTime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        },
+    
+        updateDateSelectors() {
+            // Update daily date selector
+            DOM.dailyDateSelect.innerHTML = '';
+            const dailyDates = Object.keys(STATE.dailyData).sort().reverse();
+            dailyDates.forEach(date => {
+                const option = document.createElement('option');
+                option.value = date;
+                option.textContent = new Date(date).toLocaleDateString();
+                DOM.dailyDateSelect.appendChild(option);
+            });
+            
+            // Update weekly date selector
+            DOM.weeklyDateSelect.innerHTML = '';
+            const weeklyKeys = Object.keys(STATE.weeklyData).sort().reverse();
+            weeklyKeys.forEach(key => {
+                const option = document.createElement('option');
+                option.value = key;
+                const [year, week] = key.split('-W');
+                option.textContent = `Week ${week}, ${year}`;
+                DOM.weeklyDateSelect.appendChild(option);
+            });
+            
+            // Update monthly date selector
+            DOM.monthlyDateSelect.innerHTML = '';
+            const monthlyKeys = Object.keys(STATE.monthlyData).sort().reverse();
+            monthlyKeys.forEach(key => {
+                const option = document.createElement('option');
+                option.value = key;
+                const [year, month] = key.split('-');
+                const monthName = new Date(year, parseInt(month) - 1, 1).toLocaleString('default', { month: 'long' });
+                option.textContent = `${monthName} ${year}`;
+                DOM.monthlyDateSelect.appendChild(option);
+            });
+        },
+    
+        updateDailyDataDisplay() {
+            const selectedDate = DOM.dailyDateSelect.value;
+            if (!selectedDate || !STATE.dailyData[selectedDate]) {
+                DOM.dailyDataBody.innerHTML = '<tr><td colspan="4">No data available for this date</td></tr>';
+                DOM.dailyWorkSummary.textContent = '00:00:00';
+                DOM.dailyBreakSummary.textContent = '00:00:00';
+                DOM.dailyPomodorosSummary.textContent = '0';
+                return;
+            }
+            
+            const dailyData = STATE.dailyData[selectedDate];
+            
+            // Update summary
+            DOM.dailyWorkSummary.textContent = this.formatTime(dailyData.totalWork);
+            DOM.dailyBreakSummary.textContent = this.formatTime(dailyData.totalBreak);
+            DOM.dailyPomodorosSummary.textContent = dailyData.totalPomodoros.toString();
+            
+            // Update table
+            DOM.dailyDataBody.innerHTML = '';
+            
+            Object.entries(dailyData.projects).forEach(([projectId, projectData]) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${projectData.name}</td>
+                    <td>${this.formatTime(projectData.workTime)}</td>
+                    <td>${this.formatTime(projectData.breakTime)}</td>
+                    <td>${projectData.pomodoros}</td>
+                `;
+                DOM.dailyDataBody.appendChild(row);
+            });
+        },
+    
+        updateWeeklyDataDisplay() {
+            const selectedWeek = DOM.weeklyDateSelect.value;
+            if (!selectedWeek || !STATE.weeklyData[selectedWeek]) {
+                DOM.weeklyDataBody.innerHTML = '<tr><td colspan="4">No data available for this week</td></tr>';
+                DOM.weeklyWorkSummary.textContent = '00:00:00';
+                DOM.weeklyBreakSummary.textContent = '00:00:00';
+                DOM.weeklyPomodorosSummary.textContent = '0';
+                DOM.weeklyDaysSummary.textContent = '0';
+                return;
+            }
+            
+            const weeklyData = STATE.weeklyData[selectedWeek];
+            
+            // Update summary
+            DOM.weeklyWorkSummary.textContent = this.formatTime(weeklyData.totalWork);
+            DOM.weeklyBreakSummary.textContent = this.formatTime(weeklyData.totalBreak);
+            DOM.weeklyPomodorosSummary.textContent = weeklyData.totalPomodoros.toString();
+            DOM.weeklyDaysSummary.textContent = weeklyData.daysWorked.size.toString();
+            
+            // Update table
+            DOM.weeklyDataBody.innerHTML = '';
+            
+            Object.entries(weeklyData.projects).forEach(([projectId, projectData]) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${projectData.name}</td>
+                    <td>${this.formatTime(projectData.workTime)}</td>
+                    <td>${this.formatTime(projectData.breakTime)}</td>
+                    <td>${projectData.pomodoros}</td>
+                `;
+                DOM.weeklyDataBody.appendChild(row);
+            });
+        },
+    
+        updateMonthlyDataDisplay() {
+            const selectedMonth = DOM.monthlyDateSelect.value;
+            if (!selectedMonth || !STATE.monthlyData[selectedMonth]) {
+                DOM.monthlyDataBody.innerHTML = '<tr><td colspan="4">No data available for this month</td></tr>';
+                DOM.monthlyWorkSummary.textContent = '00:00:00';
+                DOM.monthlyBreakSummary.textContent = '00:00:00';
+                DOM.monthlyPomodorosSummary.textContent = '0';
+                DOM.monthlyDaysSummary.textContent = '0';
+                return;
+            }
+            
+            const monthlyData = STATE.monthlyData[selectedMonth];
+            
+            // Update summary
+            DOM.monthlyWorkSummary.textContent = this.formatTime(monthlyData.totalWork);
+            DOM.monthlyBreakSummary.textContent = this.formatTime(monthlyData.totalBreak);
+            DOM.monthlyPomodorosSummary.textContent = monthlyData.totalPomodoros.toString();
+            DOM.monthlyDaysSummary.textContent = monthlyData.daysWorked.size.toString();
+            
+            // Update table
+            DOM.monthlyDataBody.innerHTML = '';
+            
+            Object.entries(monthlyData.projects).forEach(([projectId, projectData]) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${projectData.name}</td>
+                    <td>${this.formatTime(projectData.workTime)}</td>
+                    <td>${this.formatTime(projectData.breakTime)}</td>
+                    <td>${projectData.pomodoros}</td>
+                `;
+                DOM.monthlyDataBody.appendChild(row);
+            });
+        },
+    
+        exportToWord(timePeriod) {
+            let title, data, summary;
+            
+            if (timePeriod === 'daily') {
+                const selectedDate = DOM.dailyDateSelect.value;
+                if (!selectedDate || !STATE.dailyData[selectedDate]) return;
                 
-                // Create 100 pieces of confetti
-                for (let i = 0; i < 100; i++) {
-                    const confetti = document.createElement('div');
-                    confetti.className = 'confetti';
-                    
-                    // Random properties for each confetti piece
-                    const colors = ['#e91e63', '#4caf50', '#2196f3', '#ff9800', '#9c27b0', '#673ab7'];
-                    const shapes = ['circle', 'square', 'triangle'];
-                    const left = Math.random() * 100;
-                    const animationDuration = Math.random() * 3 + 2;
-                    const delay = Math.random() * 5;
-                    const size = Math.random() * 10 + 5;
-                    
-                    // Apply styles
-                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                    confetti.style.left = `${left}%`;
-                    confetti.style.width = `${size}px`;
-                    confetti.style.height = `${size}px`;
-                    confetti.style.opacity = '1';
-                    confetti.style.animation = `confetti-fall ${animationDuration}s ease-in ${delay}s forwards`;
-                    
-                    // Random shape
-                    if (Math.random() > 0.5) {
-                        confetti.style.borderRadius = '50%';
-                    }
-                    
-                    confettiContainer.appendChild(confetti);
-                    
-                    // Remove confetti after animation completes
-                    setTimeout(() => {
-                        confetti.remove();
-                    }, (animationDuration + delay) * 1000);
+                data = STATE.dailyData[selectedDate];
+                title = `Daily Report - ${new Date(selectedDate).toLocaleDateString()}`;
+                
+                summary = [
+                    `Total Work Time: ${this.formatTime(data.totalWork)}`,
+                    `Total Break Time: ${this.formatTime(data.totalBreak)}`,
+                    `Pomodoros Completed: ${data.totalPomodoros}`
+                ];
+            } else if (timePeriod === 'weekly') {
+                const selectedWeek = DOM.weeklyDateSelect.value;
+                if (!selectedWeek || !STATE.weeklyData[selectedWeek]) return;
+                
+                data = STATE.weeklyData[selectedWeek];
+                const [year, week] = selectedWeek.split('-W');
+                title = `Weekly Report - Week ${week}, ${year}`;
+                
+                summary = [
+                    `Total Work Time: ${this.formatTime(data.totalWork)}`,
+                    `Total Break Time: ${this.formatTime(data.totalBreak)}`,
+                    `Pomodoros Completed: ${data.totalPomodoros}`,
+                    `Days Worked: ${data.daysWorked.size}`
+                ];
+            } else if (timePeriod === 'monthly') {
+                const selectedMonth = DOM.monthlyDateSelect.value;
+                if (!selectedMonth || !STATE.monthlyData[selectedMonth]) return;
+                
+                data = STATE.monthlyData[selectedMonth];
+                const [year, month] = selectedMonth.split('-');
+                const monthName = new Date(year, parseInt(month) - 1, 1).toLocaleString('default', { month: 'long' });
+                title = `Monthly Report - ${monthName} ${year}`;
+                
+                summary = [
+                    `Total Work Time: ${this.formatTime(data.totalWork)}`,
+                    `Total Break Time: ${this.formatTime(data.totalBreak)}`,
+                    `Pomodoros Completed: ${data.totalPomodoros}`,
+                    `Days Worked: ${data.daysWorked.size}`
+                ];
+            } else {
+                return;
+            }
+            
+            // Create HTML content for the Word document
+            let htmlContent = `
+                <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                <head>
+                    <title>${title}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; }
+                        h1 { color: #2e6c80; }
+                        table { border-collapse: collapse; width: 100%; }
+                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                        th { background-color: #f2f2f2; }
+                    </style>
+                </head>
+                <body>
+                    <h1>${title}</h1>
+                    <h2>Summary</h2>
+                    <ul>
+                        ${summary.map(item => `<li>${item}</li>`).join('')}
+                    </ul>
+                    <h2>Project Details</h2>
+                    <table>
+                        <tr>
+                            <th>Project</th>
+                            <th>Work Time</th>
+                            <th>Break Time</th>
+                            <th>Pomodoros</th>
+                        </tr>
+            `;
+            
+            // Add project rows
+            Object.entries(data.projects).forEach(([projectId, projectData]) => {
+                htmlContent += `
+                    <tr>
+                        <td>${projectData.name}</td>
+                        <td>${this.formatTime(projectData.workTime)}</td>
+                        <td>${this.formatTime(projectData.breakTime)}</td>
+                        <td>${projectData.pomodoros}</td>
+                    </tr>
+                `;
+            });
+            
+            htmlContent += `
+                    </table>
+                </body>
+                </html>
+            `;
+            
+            // Create a Blob with the HTML content
+            const blob = new Blob(['\ufeff', htmlContent], {
+                type: 'application/msword'
+            });
+            
+            // Create download link
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${title.replace(/ /g, '_')}.doc`;
+            document.body.appendChild(a);
+            a.click();
+            
+            // Clean up
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 100);
+        }
+    };
+    
+    // ========== Celebration Functions ==========
+    const celebrationActions = {
+        triggerCelebration() {
+            // Create confetti
+            this.createConfetti();
+            
+            // Pulse animation for the container
+            DOM.container.style.animation = 'pulse 0.5s 3';
+            setTimeout(() => {
+                DOM.container.style.animation = '';
+            }, 1500);
+        },
+        
+        createConfetti() {
+            const confettiContainer = document.createElement('div');
+            confettiContainer.className = 'confetti-container';
+            document.body.appendChild(confettiContainer);
+            
+            // Create 100 pieces of confetti
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                
+                // Random properties for each confetti piece
+                const colors = ['#e91e63', '#4caf50', '#2196f3', '#ff9800', '#9c27b0', '#673ab7'];
+                const shapes = ['circle', 'square', 'triangle'];
+                const left = Math.random() * 100;
+                const animationDuration = Math.random() * 3 + 2;
+                const delay = Math.random() * 5;
+                const size = Math.random() * 10 + 5;
+                
+                // Apply styles
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = `${left}%`;
+                confetti.style.width = `${size}px`;
+                confetti.style.height = `${size}px`;
+                confetti.style.opacity = '1';
+                confetti.style.animation = `confetti-fall ${animationDuration}s ease-in ${delay}s forwards`;
+                
+                // Random shape
+                if (Math.random() > 0.5) {
+                    confetti.style.borderRadius = '50%';
                 }
                 
-                // Remove container after all confetti is gone
+                confettiContainer.appendChild(confetti);
+                
+                // Remove confetti after animation completes
                 setTimeout(() => {
-                    confettiContainer.remove();
-                }, 8000);
+                    confetti.remove();
+                }, (animationDuration + delay) * 1000);
             }
-        };
-
-        // ========== Tracking Functions ==========
-        const trackingActions = {
-            updateDisplay() {
-                DOM.totalWorkDisplay.textContent = this.formatTime(STATE.totalWorkSeconds);
-                DOM.totalBreakDisplay.textContent = this.formatTime(STATE.totalBreakSeconds);
-            },
-
-            formatTime(totalSeconds) {
-                const hours = Math.floor(totalSeconds / 3600);
-                const minutes = Math.floor((totalSeconds % 3600) / 60);
-                const seconds = totalSeconds % 60;
-                return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            },
-
-            resetTracking() {
-                if (confirm('Are you sure you want to reset all tracking time?')) {
-                    STATE.totalWorkSeconds = 0;
-                    STATE.totalBreakSeconds = 0;
-                    this.updateDisplay();
-                    localStorage.setItem('totalWorkSeconds', '0');
-                    localStorage.setItem('totalBreakSeconds', '0');
+            
+            // Remove container after all confetti is gone
+            setTimeout(() => {
+                confettiContainer.remove();
+            }, 8000);
+        }
+    };
+    
+    // ========== Tracking Functions ==========
+    const trackingActions = {
+        updateDisplay() {
+            DOM.totalWorkDisplay.textContent = this.formatTime(STATE.totalWorkSeconds);
+            DOM.totalBreakDisplay.textContent = this.formatTime(STATE.totalBreakSeconds);
+        },
+    
+        formatTime(totalSeconds) {
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        },
+    
+        resetTracking() {
+            if (confirm('Are you sure you want to reset all tracking time?')) {
+                STATE.totalWorkSeconds = 0;
+                STATE.totalBreakSeconds = 0;
+                this.updateDisplay();
+                localStorage.setItem('totalWorkSeconds', '0');
+                localStorage.setItem('totalBreakSeconds', '0');
+            }
+        }
+    };
+    
+    // ========== Dropdown Menu Functions ==========
+    const dropdownActions = {
+        init() {
+            // DOM Elements
+            const menuBtn = document.getElementById('menuBtn');
+            const menuItems = document.getElementById('menuItems');
+            const panels = {
+                info: document.getElementById('infoPanel'),
+                productivity: document.getElementById('productivityPanel'),
+                sounds: document.getElementById('soundsPanel'),
+                rewards: document.getElementById('rewardsPanel'),
+                dataTracking: document.getElementById('dataTrackingPanel'),
+                donate: document.getElementById('donatePanel')
+            };
+            
+            // Close buttons
+            const closeBtns = {
+                info: document.getElementById('closeInfo'),
+                productivity: document.getElementById('closeProductivity'),
+                sounds: document.getElementById('closeSounds'),
+                rewards: document.getElementById('closeRewards'),
+                dataTracking: document.getElementById('closeDataTracking'),
+                donate: document.getElementById('closeDonate')
+            };
+            
+            // Volume control
+            const volumeControl = document.getElementById('volumeControl');
+            const soundToggle = document.getElementById('soundToggle');
+            let currentSound = null;
+    
+            // Initialize audio elements with default volume
+            document.querySelectorAll('audio').forEach(audio => {
+                audio.volume = 0.5;
+                audio.addEventListener('error', (e) => {
+                    console.error('Audio error:', e.target.src, 'failed to load');
+                });
+            });
+    
+            // Toggle menu visibility
+            menuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                menuItems.classList.toggle('show');
+            });
+            
+            // Close menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!menuBtn.contains(e.target)) {
+                    menuItems.classList.remove('show');
                 }
-            }
-        };
-
-        // ========== Dropdown Menu Functions ==========
-        const dropdownActions = {
-            init() {
-                // DOM Elements
-                const menuBtn = document.getElementById('menuBtn');
-                const menuItems = document.getElementById('menuItems');
-                const panels = {
-                    info: document.getElementById('infoPanel'),
-                    productivity: document.getElementById('productivityPanel'),
-                    sounds: document.getElementById('soundsPanel'),
-                    rewards: document.getElementById('rewardsPanel'),
-                    dataTracking: document.getElementById('dataTrackingPanel'),
-                    donate: document.getElementById('donatePanel')
-                };
-                
-                // Close buttons
-                const closeBtns = {
-                    info: document.getElementById('closeInfo'),
-                    productivity: document.getElementById('closeProductivity'),
-                    sounds: document.getElementById('closeSounds'),
-                    rewards: document.getElementById('closeRewards'),
-                    dataTracking: document.getElementById('closeDataTracking'),
-                    donate: document.getElementById('closeDonate')
-                };
-                
-                // Volume control
-                const volumeControl = document.getElementById('volumeControl');
-                const soundToggle = document.getElementById('soundToggle');
-                let currentSound = null;
-
-                // Initialize audio elements with default volume
-                document.querySelectorAll('audio').forEach(audio => {
-                    audio.volume = 0.5;
-                    audio.addEventListener('error', (e) => {
-                        console.error('Audio error:', e.target.src, 'failed to load');
-                    });
-                });
-
-                // Toggle menu visibility
-                menuBtn.addEventListener('click', (e) => {
+            });
+            
+            // Handle menu item clicks
+            document.querySelectorAll('.item').forEach(item => {
+                item.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    menuItems.classList.toggle('show');
+                    const panelName = item.getAttribute('data-panel');
+                    
+                    // Close all panels first
+                    Object.values(panels).forEach(panel => {
+                        panel.classList.remove('show');
+                    });
+                    
+                    // Show selected panel
+                    if (panels[panelName]) {
+                        panels[panelName].classList.add('show');
+                        
+                        // If it's the data tracking panel, update the display
+                        if (panelName === 'dataTracking') {
+                            dataTracking.updateDateSelectors();
+                            dataTracking.updateDailyDataDisplay();
+                        }
+                    }
+                    
+                    // Close the dropdown
+                    menuItems.classList.remove('show');
                 });
-                
-                // Close menu when clicking outside
-                document.addEventListener('click', (e) => {
-                    if (!menuBtn.contains(e.target)) {
-                        menuItems.classList.remove('show');
+            });
+            
+            // Close panel buttons
+            Object.entries(closeBtns).forEach(([panelName, btn]) => {
+                btn.addEventListener('click', () => {
+                    panels[panelName].classList.remove('show');
+                });
+            });
+            
+            // Close panels when clicking outside
+            document.addEventListener('click', (e) => {
+                Object.entries(panels).forEach(([panelName, panel]) => {
+                    if (!panel.contains(e.target) && !Array.from(document.querySelectorAll('.item')).some(item => 
+                        item.getAttribute('data-panel') === panelName && item.contains(e.target))) {
+                        panel.classList.remove('show');
                     }
                 });
-                
-                // Handle menu item clicks
-                document.querySelectorAll('.item').forEach(item => {
-                    item.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const panelName = item.getAttribute('data-panel');
-                        
-                        // Close all panels first
-                        Object.values(panels).forEach(panel => {
-                            panel.classList.remove('show');
+            });
+            
+            // Sound selection
+            document.querySelectorAll('.sound-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    const soundType = option.getAttribute('data-sound');
+                    currentSound = document.getElementById(`${soundType}Sound`);
+                    
+                    // Stop all other sounds
+                    document.querySelectorAll('audio').forEach(audio => {
+                        if (audio !== currentSound && audio !== DOM.alarmSound && audio !== DOM.applauseSound) {
+                            audio.pause();
+                            audio.currentTime = 0;
+                        }
+                    });
+                    
+                    // Play selected sound
+                    if (currentSound) {
+                        currentSound.currentTime = 0;
+                        currentSound.volume = volumeControl.value;
+                        currentSound.play().catch(e => {
+                            console.error('Failed to play sound:', e);
                         });
-                        
-                        // Show selected panel
-                        if (panels[panelName]) {
-                            panels[panelName].classList.add('show');
-                            
-                            // If it's the data tracking panel, update the display
-                            if (panelName === 'dataTracking') {
-                                dataTracking.updateDateSelectors();
-                                dataTracking.updateDailyDataDisplay();
-                            }
-                        }
-                        
-                        // Close the dropdown
-                        menuItems.classList.remove('show');
-                    });
+                        soundToggle.textContent = '⏸️';
+                    }
                 });
-                
-                // Close panel buttons
-                Object.entries(closeBtns).forEach(([panelName, btn]) => {
-                    btn.addEventListener('click', () => {
-                        panels[panelName].classList.remove('show');
-                    });
-                });
-                
-                // Close panels when clicking outside
-                document.addEventListener('click', (e) => {
-                    Object.entries(panels).forEach(([panelName, panel]) => {
-                        if (!panel.contains(e.target) && !Array.from(document.querySelectorAll('.item')).some(item => 
-                            item.getAttribute('data-panel') === panelName && item.contains(e.target))) {
-                            panel.classList.remove('show');
-                        }
-                    });
-                });
-                
-                // Sound selection
-                document.querySelectorAll('.sound-option').forEach(option => {
-                    option.addEventListener('click', () => {
-                        const soundType = option.getAttribute('data-sound');
+            });
+            
+            // Sound toggle button
+            soundToggle.addEventListener('click', () => {
+                if (currentSound) {
+                    if (currentSound.paused) {
+                        currentSound.play().catch(e => {
+                            console.error('Failed to play sound:', e);
+                        });
+                        soundToggle.textContent = '⏸️';
+                    } else {
+                        currentSound.pause();
+                        soundToggle.textContent = '▶️';
+                    }
+                } else {
+                    // If no sound is selected, play the first one
+                    const firstSoundOption = document.querySelector('.sound-option');
+                    if (firstSoundOption) {
+                        const soundType = firstSoundOption.getAttribute('data-sound');
                         currentSound = document.getElementById(`${soundType}Sound`);
-                        
-                        // Stop all other sounds
-                        document.querySelectorAll('audio').forEach(audio => {
-                            if (audio !== currentSound && audio !== DOM.alarmSound && audio !== DOM.applauseSound) {
-                                audio.pause();
-                                audio.currentTime = 0;
-                            }
-                        });
-                        
-                        // Play selected sound
                         if (currentSound) {
                             currentSound.currentTime = 0;
                             currentSound.volume = volumeControl.value;
@@ -3071,655 +3100,626 @@
                             });
                             soundToggle.textContent = '⏸️';
                         }
-                    });
+                    }
+                }
+            });
+            
+            // Volume control
+            volumeControl.addEventListener('input', () => {
+                const volume = volumeControl.value;
+                document.querySelectorAll('audio').forEach(audio => {
+                    audio.volume = volume;
                 });
+            });
+            
+            // Update button when sound ends
+            document.querySelectorAll('audio').forEach(audio => {
+                audio.addEventListener('ended', () => {
+                    if (audio === currentSound) {
+                        soundToggle.textContent = '▶️';
+                    }
+                });
+            });
+    
+            // Sound tab switching
+            document.querySelectorAll('.sounds-tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.sounds-tab-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.sounds-tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    btn.classList.add('active');
+                    document.getElementById(`${btn.dataset.tab}-tab`).classList.add('active');
+                });
+            });
+        }
+    };
+    
+    // ========== Rewards System ==========
+    const rewardsSystem = {
+        rewards: {
+            daily: {
+                'daily-1': { name: 'Morning Brew', description: 'Complete 1 Pomodoro', target: 1, current: 0, completed: false, icon: '☕' },
+                'daily-2': { name: 'Focused Learner', description: 'Complete 3 Pomodoros', target: 3, current: 0, completed: false, icon: '📚' },
+                'daily-3': { name: 'Productivity Pro', description: 'Complete 5 Pomodoros', target: 5, current: 0, completed: false, icon: '🏆' },
+                'daily-4': { name: 'Time Master', description: 'Work for 2 hours', target: 120, current: 0, completed: false, icon: '⏰' },
+                'daily-5': { name: 'Balanced Day', description: 'Take all scheduled breaks', target: 1, current: 0, completed: false, icon: '🧘' }
+            },
+            weekly: {
+                'weekly-1': { name: 'Consistent Starter', description: 'Work 3 days this week', target: 3, current: 0, completed: false, icon: '📅' },
+                'weekly-2': { name: 'Dedicated Worker', description: 'Complete 15 Pomodoros', target: 15, current: 0, completed: false, icon: '💪' },
+                'weekly-3': { name: 'Time Investor', description: 'Work for 10 hours', target: 600, current: 0, completed: false, icon: '⏳' },
+                'weekly-4': { name: 'Project Champion', description: 'Work on 3 different projects', target: 3, current: 0, completed: false, icon: '📝' },
+                'weekly-5': { name: 'Perfect Week', description: 'Complete all daily rewards', target: 5, current: 0, completed: false, icon: '🌟' },
+                'weekly-6': { name: 'Weekend Warrior', description: 'Work on a weekend day', target: 1, current: 0, completed: false, icon: '🏝️' }
+            },
+            monthly: {
+                'monthly-1': { name: 'Month Starter', description: 'Work 10 days this month', target: 10, current: 0, completed: false, icon: '📆' },
+                'monthly-2': { name: 'Hot Streak', description: 'Work 5 days in a row', target: 5, current: 0, completed: false, icon: '🔥' },
+                'monthly-3': { name: 'Time Titan', description: 'Work for 50 hours', target: 3000, current: 0, completed: false, icon: '⏱️' },
+                'monthly-4': { name: 'Pomodoro Master', description: 'Complete 100 Pomodoros', target: 100, current: 0, completed: false, icon: '🍅' },
+                'monthly-5': { name: 'Project Explorer', description: 'Work on 10 different projects', target: 10, current: 0, completed: false, icon: '📚' },
+                'monthly-6': { name: 'Weekly Warrior', description: 'Complete all weekly rewards', target: 6, current: 0, completed: false, icon: '🏅' },
+                'monthly-7': { name: 'Night Owl', description: 'Work after 10 PM 5 times', target: 5, current: 0, completed: false, icon: '🌙' },
+                'monthly-8': { name: 'Early Bird', description: 'Work before 8 AM 5 times', target: 5, current: 0, completed: false, icon: '🌅' },
+                'monthly-9': { name: 'Consistency King', description: 'Work every weekday for 2 weeks', target: 10, current: 0, completed: false, icon: '📊' },
+                'monthly-10': { name: 'Ultimate Achiever', description: 'Complete all monthly rewards', target: 9, current: 0, completed: false, icon: '🏆' }
+            }
+        },
+        history: [],
+        lastReset: {
+            daily: null,
+            weekly: null,
+            monthly: null
+        },
+        currentStreak: 0,
+        lastWorkDate: null,
+        activeProjects: new Set(),
+        nightWorkCount: 0,
+        morningWorkCount: 0,
+        workDays: new Set(),
+    
+        init() {
+            this.loadRewardsData();
+            this.setupEventListeners();
+            this.checkReset();
+            this.renderRewards();
+            this.renderHistory();
+            
+            // Close reward modal button
+            DOM.closeRewardModal.addEventListener('click', () => {
+                DOM.rewardModal.classList.remove('show');
+            });
+        },
+    
+        setupEventListeners() {
+            // Tab switching
+            document.querySelectorAll('.rewards-tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.rewards-tab-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.rewards-tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    btn.classList.add('active');
+                    document.getElementById(`${btn.dataset.tab}-tab`).classList.add('active');
+                });
+            });
+    
+            // History filtering
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    this.renderHistory(btn.dataset.filter);
+                });
+            });
+        },
+    
+        loadRewardsData() {
+            const savedData = localStorage.getItem('rewardsData');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                this.rewards = data.rewards || this.rewards;
+                this.history = data.history || [];
+                this.lastReset = data.lastReset || this.lastReset;
+                this.currentStreak = data.currentStreak || 0;
+                this.lastWorkDate = data.lastWorkDate ? new Date(data.lastWorkDate) : null;
+                this.activeProjects = new Set(data.activeProjects || []);
+                this.nightWorkCount = data.nightWorkCount || 0;
+                this.morningWorkCount = data.morningWorkCount || 0;
+                this.workDays = new Set(data.workDays || []);
+            }
+        },
+    
+        saveRewardsData() {
+            const data = {
+                rewards: this.rewards,
+                history: this.history,
+                lastReset: this.lastReset,
+                currentStreak: this.currentStreak,
+                lastWorkDate: this.lastWorkDate,
+                activeProjects: Array.from(this.activeProjects),
+                nightWorkCount: this.nightWorkCount,
+                morningWorkCount: this.morningWorkCount,
+                workDays: Array.from(this.workDays)
+            };
+            localStorage.setItem('rewardsData', JSON.stringify(data));
+        },
+    
+        checkReset() {
+            const now = new Date();
+            
+            // Daily reset check
+            if (!this.lastReset.daily || now.toDateString() !== new Date(this.lastReset.daily).toDateString()) {
+                if (now.getHours() >= 0) { // Reset after midnight
+                    this.resetRewards('daily');
+                    this.lastReset.daily = now.toISOString();
+                    this.saveRewardsData();
+                }
+            }
+            
+            // Weekly reset check (every Monday)
+            const lastWeeklyReset = this.lastReset.weekly ? new Date(this.lastReset.weekly) : null;
+            if (!lastWeeklyReset || (now.getDay() === 1 && now.toDateString() !== lastWeeklyReset.toDateString())) {
+                this.resetRewards('weekly');
+                this.lastReset.weekly = now.toISOString();
+                this.saveRewardsData();
+            }
+            
+            // Monthly reset check (first day of month)
+            const lastMonthlyReset = this.lastReset.monthly ? new Date(this.lastReset.monthly) : null;
+            if (!lastMonthlyReset || (now.getDate() === 1 && now.toDateString() !== lastMonthlyReset.toDateString())) {
+                this.resetRewards('monthly');
+                this.lastReset.monthly = now.toISOString();
+                this.saveRewardsData();
+            }
+        },
+    
+        resetRewards(type) {
+            for (const rewardId in this.rewards[type]) {
+                this.rewards[type][rewardId].current = 0;
+                this.rewards[type][rewardId].completed = false;
+            }
+            
+            if (type === 'daily') {
+                // Reset daily-specific counters
+                this.rewards.weekly['weekly-5'].current = 0; // Reset Perfect Week progress
+            }
+            
+            if (type === 'weekly') {
+                // Reset weekly-specific counters
+                this.activeProjects.clear();
+                this.workDays.clear();
+                this.rewards.monthly['monthly-6'].current = 0; // Reset Weekly Warrior progress
+            }
+            
+            if (type === 'monthly') {
+                // Reset monthly-specific counters
+                this.nightWorkCount = 0;
+                this.morningWorkCount = 0;
+                this.workDays.clear();
+            }
+            
+            this.saveRewardsData();
+            this.renderRewards();
+        },
+    
+        updateProgress(type, rewardId, amount = 1) {
+            if (!this.rewards[type] || !this.rewards[type][rewardId]) return;
+            
+            const reward = this.rewards[type][rewardId];
+            if (reward.completed) return;
+            
+            reward.current += amount;
+            
+            if (reward.current >= reward.target) {
+                reward.completed = true;
+                this.addToHistory(type, rewardId);
                 
-                // Sound toggle button
-                soundToggle.addEventListener('click', () => {
-                    if (currentSound) {
-                        if (currentSound.paused) {
-                            currentSound.play().catch(e => {
-                                console.error('Failed to play sound:', e);
-                            });
-                            soundToggle.textContent = '⏸️';
-                        } else {
-                            currentSound.pause();
-                            soundToggle.textContent = '▶️';
-                        }
-                    } else {
-                        // If no sound is selected, play the first one
-                        const firstSoundOption = document.querySelector('.sound-option');
-                        if (firstSoundOption) {
-                            const soundType = firstSoundOption.getAttribute('data-sound');
-                            currentSound = document.getElementById(`${soundType}Sound`);
-                            if (currentSound) {
-                                currentSound.currentTime = 0;
-                                currentSound.volume = volumeControl.value;
-                                currentSound.play().catch(e => {
-                                    console.error('Failed to play sound:', e);
-                                });
-                                soundToggle.textContent = '⏸️';
+                // Check if all daily rewards are completed for Perfect Week
+                if (type === 'daily') {
+                    this.updatePerfectWeekProgress();
+                }
+                
+                // Check if all weekly rewards are completed for Weekly Warrior
+                if (type === 'weekly') {
+                    this.updateWeeklyWarriorProgress();
+                }
+                
+                // Check if all monthly rewards are completed for Ultimate Achiever
+                if (type === 'monthly') {
+                    this.updateUltimateAchieverProgress();
+                }
+                
+                // Show celebration
+                this.showRewardAchievement(reward);
+            }
+            
+            this.saveRewardsData();
+            this.renderRewards();
+        },
+    
+        showRewardAchievement(reward) {
+            DOM.rewardModalIcon.textContent = reward.icon;
+            DOM.rewardModalTitle.textContent = reward.name;
+            DOM.rewardModalDescription.textContent = reward.description;
+            
+            // Play applause sound for rewards
+            DOM.applauseSound.currentTime = 0;
+            DOM.applauseSound.play();
+            
+            // Show confetti
+            celebrationActions.createConfetti();
+            
+            // Show modal
+            DOM.rewardModal.classList.add('show');
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                DOM.rewardModal.classList.remove('show');
+            }, 5000);
+        },
+    
+        updatePerfectWeekProgress() {
+            const allCompleted = Object.values(this.rewards.daily).every(r => r.completed);
+            if (allCompleted) {
+                this.rewards.weekly['weekly-5'].current = this.rewards.weekly['weekly-5'].target;
+                this.rewards.weekly['weekly-5'].completed = true;
+                this.addToHistory('weekly', 'weekly-5');
+                this.showRewardAchievement(this.rewards.weekly['weekly-5']);
+            }
+        },
+    
+        updateWeeklyWarriorProgress() {
+            const allCompleted = Object.values(this.rewards.weekly).every(r => r.completed);
+            if (allCompleted) {
+                this.rewards.monthly['monthly-6'].current += 1;
+                
+                if (this.rewards.monthly['monthly-6'].current >= this.rewards.monthly['monthly-6'].target) {
+                    this.rewards.monthly['monthly-6'].completed = true;
+                    this.addToHistory('monthly', 'monthly-6');
+                    this.showRewardAchievement(this.rewards.monthly['monthly-6']);
+                }
+            }
+        },
+    
+        updateUltimateAchieverProgress() {
+            const allCompleted = Object.values(this.rewards.monthly).every(r => r.completed);
+            if (allCompleted) {
+                this.rewards.monthly['monthly-10'].current = this.rewards.monthly['monthly-10'].target;
+                this.rewards.monthly['monthly-10'].completed = true;
+                this.addToHistory('monthly', 'monthly-10');
+                this.showRewardAchievement(this.rewards.monthly['monthly-10']);
+            }
+        },
+    
+        addToHistory(type, rewardId) {
+            const reward = this.rewards[type][rewardId];
+            if (!reward) return;
+            
+            this.history.unshift({
+                type,
+                id: rewardId,
+                name: reward.name,
+                icon: reward.icon,
+                date: new Date().toISOString()
+            });
+            
+            // Keep only the last 100 history items
+            if (this.history.length > 100) {
+                this.history.pop();
+            }
+            
+            this.saveRewardsData();
+            this.renderHistory();
+        },
+    
+        trackPomodoroCompletion() {
+            // Update daily pomodoro rewards
+            this.updateProgress('daily', 'daily-1');
+            this.updateProgress('daily', 'daily-2');
+            this.updateProgress('daily', 'daily-3');
+            
+            // Update weekly pomodoro reward
+            this.updateProgress('weekly', 'weekly-2');
+            
+            // Update monthly pomodoro reward
+            this.updateProgress('monthly', 'monthly-4');
+        },
+    
+        trackWorkTime(minutes) {
+            // Update daily time reward (convert minutes to hours for the target)
+            this.updateProgress('daily', 'daily-4', minutes);
+            
+            // Update weekly time reward
+            this.updateProgress('weekly', 'weekly-3', minutes);
+            
+            // Update monthly time reward
+            this.updateProgress('monthly', 'monthly-3', minutes);
+        },
+    
+        trackBreakTaken() {
+            // Update daily break reward
+            this.updateProgress('daily', 'daily-5');
+        },
+    
+        trackWorkDay() {
+            const today = new Date().toDateString();
+            const now = new Date();
+            
+            // Track work day for streak
+            if (!this.lastWorkDate || new Date(this.lastWorkDate).toDateString() !== today) {
+                // Check if this is consecutive day
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                
+                if (this.lastWorkDate && new Date(this.lastWorkDate).toDateString() === yesterday.toDateString()) {
+                    this.currentStreak++;
+                } else {
+                    this.currentStreak = 1;
+                }
+                
+                this.lastWorkDate = now.toISOString();
+                
+                // Update daily work days
+                this.workDays.add(today);
+                
+                // Update weekly work days reward
+                this.updateProgress('weekly', 'weekly-1');
+                
+                // Update monthly work days reward
+                this.updateProgress('monthly', 'monthly-1');
+                
+                // Update hot streak reward if applicable
+                if (this.currentStreak >= 5) {
+                    this.updateProgress('monthly', 'monthly-2');
+                }
+                
+                // Update consistency king reward
+                if (this.workDays.size >= 10) {
+                    this.updateProgress('monthly', 'monthly-9');
+                }
+                
+                // Check for weekend work (Saturday or Sunday)
+                if (now.getDay() === 0 || now.getDay() === 6) {
+                    this.updateProgress('weekly', 'weekly-6');
+                }
+                
+                // Check for night work (after 10 PM)
+                if (now.getHours() >= 22) {
+                    this.nightWorkCount++;
+                    if (this.nightWorkCount >= 5) {
+                        this.updateProgress('monthly', 'monthly-7');
+                    }
+                }
+                
+                // Check for morning work (before 8 AM)
+                if (now.getHours() < 8) {
+                    this.morningWorkCount++;
+                    if (this.morningWorkCount >= 5) {
+                        this.updateProgress('monthly', 'monthly-8');
+                    }
+                }
+                
+                this.saveRewardsData();
+            }
+        },
+    
+        trackProjectWork(projectId) {
+            if (!projectId) return;
+            
+            this.activeProjects.add(projectId);
+            
+            // Update weekly project reward
+            this.updateProgress('weekly', 'weekly-4');
+            
+            // Update monthly project reward
+            this.updateProgress('monthly', 'monthly-5');
+        },
+    
+        renderRewards() {
+            // Render all rewards with their current progress
+            for (const type in this.rewards) {
+                for (const rewardId in this.rewards[type]) {
+                    const reward = this.rewards[type][rewardId];
+                    const card = document.querySelector(`.reward-card[data-id="${rewardId}"]`);
+                    
+                    if (card) {
+                        const progressBar = card.querySelector('.progress-bar div');
+                        const progressText = card.querySelector('.reward-progress span');
+                        
+                        if (progressBar && progressText) {
+                            const percent = Math.min(100, (reward.current / reward.target) * 100);
+                            progressBar.style.width = `${percent}%`;
+                            progressText.textContent = `${reward.current}/${reward.target}`;
+                            
+                            if (reward.completed) {
+                                card.classList.add('completed');
+                                progressBar.style.backgroundColor = '#4caf50';
+                            } else {
+                                card.classList.remove('completed');
+                                progressBar.style.backgroundColor = '#673ab7';
                             }
                         }
                     }
-                });
-                
-                // Volume control
-                volumeControl.addEventListener('input', () => {
-                    const volume = volumeControl.value;
-                    document.querySelectorAll('audio').forEach(audio => {
-                        audio.volume = volume;
-                    });
-                });
-                
-                // Update button when sound ends
-                document.querySelectorAll('audio').forEach(audio => {
-                    audio.addEventListener('ended', () => {
-                        if (audio === currentSound) {
-                            soundToggle.textContent = '▶️';
-                        }
-                    });
-                });
-
-                // Sound tab switching
-                document.querySelectorAll('.sounds-tab-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        document.querySelectorAll('.sounds-tab-btn').forEach(b => b.classList.remove('active'));
-                        document.querySelectorAll('.sounds-tab-content').forEach(c => c.classList.remove('active'));
-                        
-                        btn.classList.add('active');
-                        document.getElementById(`${btn.dataset.tab}-tab`).classList.add('active');
-                    });
-                });
+                }
             }
-        };
-
-        // ========== Rewards System ==========
-        const rewardsSystem = {
-            rewards: {
-                daily: {
-                    'daily-1': { name: 'Morning Brew', description: 'Complete 1 Pomodoro', target: 1, current: 0, completed: false, icon: '☕' },
-                    'daily-2': { name: 'Focused Learner', description: 'Complete 3 Pomodoros', target: 3, current: 0, completed: false, icon: '📚' },
-                    'daily-3': { name: 'Productivity Pro', description: 'Complete 5 Pomodoros', target: 5, current: 0, completed: false, icon: '🏆' },
-                    'daily-4': { name: 'Time Master', description: 'Work for 2 hours', target: 120, current: 0, completed: false, icon: '⏰' },
-                    'daily-5': { name: 'Balanced Day', description: 'Take all scheduled breaks', target: 1, current: 0, completed: false, icon: '🧘' }
-                },
-                weekly: {
-                    'weekly-1': { name: 'Consistent Starter', description: 'Work 3 days this week', target: 3, current: 0, completed: false, icon: '📅' },
-                    'weekly-2': { name: 'Dedicated Worker', description: 'Complete 15 Pomodoros', target: 15, current: 0, completed: false, icon: '💪' },
-                    'weekly-3': { name: 'Time Investor', description: 'Work for 10 hours', target: 600, current: 0, completed: false, icon: '⏳' },
-                    'weekly-4': { name: 'Project Champion', description: 'Work on 3 different projects', target: 3, current: 0, completed: false, icon: '📝' },
-                    'weekly-5': { name: 'Perfect Week', description: 'Complete all daily rewards', target: 5, current: 0, completed: false, icon: '🌟' },
-                    'weekly-6': { name: 'Weekend Warrior', description: 'Work on a weekend day', target: 1, current: 0, completed: false, icon: '🏝️' }
-                },
-                monthly: {
-                    'monthly-1': { name: 'Month Starter', description: 'Work 10 days this month', target: 10, current: 0, completed: false, icon: '📆' },
-                    'monthly-2': { name: 'Hot Streak', description: 'Work 5 days in a row', target: 5, current: 0, completed: false, icon: '🔥' },
-                    'monthly-3': { name: 'Time Titan', description: 'Work for 50 hours', target: 3000, current: 0, completed: false, icon: '⏱️' },
-                    'monthly-4': { name: 'Pomodoro Master', description: 'Complete 100 Pomodoros', target: 100, current: 0, completed: false, icon: '🍅' },
-                    'monthly-5': { name: 'Project Explorer', description: 'Work on 10 different projects', target: 10, current: 0, completed: false, icon: '📚' },
-                    'monthly-6': { name: 'Weekly Warrior', description: 'Complete all weekly rewards', target: 6, current: 0, completed: false, icon: '🏅' },
-                    'monthly-7': { name: 'Night Owl', description: 'Work after 10 PM 5 times', target: 5, current: 0, completed: false, icon: '🌙' },
-                    'monthly-8': { name: 'Early Bird', description: 'Work before 8 AM 5 times', target: 5, current: 0, completed: false, icon: '🌅' },
-                    'monthly-9': { name: 'Consistency King', description: 'Work every weekday for 2 weeks', target: 10, current: 0, completed: false, icon: '📊' },
-                    'monthly-10': { name: 'Ultimate Achiever', description: 'Complete all monthly rewards', target: 9, current: 0, completed: false, icon: '🏆' }
-                }
-            },
-            history: [],
-            lastReset: {
-                daily: null,
-                weekly: null,
-                monthly: null
-            },
-            currentStreak: 0,
-            lastWorkDate: null,
-            activeProjects: new Set(),
-            nightWorkCount: 0,
-            morningWorkCount: 0,
-            workDays: new Set(),
-
-            init() {
-                this.loadRewardsData();
-                this.setupEventListeners();
-                this.checkReset();
-                this.renderRewards();
-                this.renderHistory();
-                
-                // Close reward modal button
-                DOM.closeRewardModal.addEventListener('click', () => {
-                    DOM.rewardModal.classList.remove('show');
-                });
-            },
-
-            setupEventListeners() {
-                // Tab switching
-                document.querySelectorAll('.rewards-tab-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        document.querySelectorAll('.rewards-tab-btn').forEach(b => b.classList.remove('active'));
-                        document.querySelectorAll('.rewards-tab-content').forEach(c => c.classList.remove('active'));
-                        
-                        btn.classList.add('active');
-                        document.getElementById(`${btn.dataset.tab}-tab`).classList.add('active');
-                    });
-                });
-
-                // History filtering
-                document.querySelectorAll('.filter-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                        btn.classList.add('active');
-                        this.renderHistory(btn.dataset.filter);
-                    });
-                });
-            },
-
-            loadRewardsData() {
-                const savedData = localStorage.getItem('rewardsData');
-                if (savedData) {
-                    const data = JSON.parse(savedData);
-                    this.rewards = data.rewards || this.rewards;
-                    this.history = data.history || [];
-                    this.lastReset = data.lastReset || this.lastReset;
-                    this.currentStreak = data.currentStreak || 0;
-                    this.lastWorkDate = data.lastWorkDate ? new Date(data.lastWorkDate) : null;
-                    this.activeProjects = new Set(data.activeProjects || []);
-                    this.nightWorkCount = data.nightWorkCount || 0;
-                    this.morningWorkCount = data.morningWorkCount || 0;
-                    this.workDays = new Set(data.workDays || []);
-                }
-            },
-
-            saveRewardsData() {
-                const data = {
-                    rewards: this.rewards,
-                    history: this.history,
-                    lastReset: this.lastReset,
-                    currentStreak: this.currentStreak,
-                    lastWorkDate: this.lastWorkDate,
-                    activeProjects: Array.from(this.activeProjects),
-                    nightWorkCount: this.nightWorkCount,
-                    morningWorkCount: this.morningWorkCount,
-                    workDays: Array.from(this.workDays)
-                };
-                localStorage.setItem('rewardsData', JSON.stringify(data));
-            },
-
-            checkReset() {
-                const now = new Date();
-                
-                // Daily reset check
-                if (!this.lastReset.daily || now.toDateString() !== new Date(this.lastReset.daily).toDateString()) {
-                    if (now.getHours() >= 0) { // Reset after midnight
-                        this.resetRewards('daily');
-                        this.lastReset.daily = now.toISOString();
-                        this.saveRewardsData();
-                    }
-                }
-                
-                // Weekly reset check (every Monday)
-                const lastWeeklyReset = this.lastReset.weekly ? new Date(this.lastReset.weekly) : null;
-                if (!lastWeeklyReset || (now.getDay() === 1 && now.toDateString() !== lastWeeklyReset.toDateString())) {
-                    this.resetRewards('weekly');
-                    this.lastReset.weekly = now.toISOString();
-                    this.saveRewardsData();
-                }
-                
-                // Monthly reset check (first day of month)
-                const lastMonthlyReset = this.lastReset.monthly ? new Date(this.lastReset.monthly) : null;
-                if (!lastMonthlyReset || (now.getDate() === 1 && now.toDateString() !== lastMonthlyReset.toDateString())) {
-                    this.resetRewards('monthly');
-                    this.lastReset.monthly = now.toISOString();
-                    this.saveRewardsData();
-                }
-            },
-
-            resetRewards(type) {
-                for (const rewardId in this.rewards[type]) {
-                    this.rewards[type][rewardId].current = 0;
-                    this.rewards[type][rewardId].completed = false;
-                }
-                
-                if (type === 'daily') {
-                    // Reset daily-specific counters
-                    this.rewards.weekly['weekly-5'].current = 0; // Reset Perfect Week progress
-                }
-                
-                if (type === 'weekly') {
-                    // Reset weekly-specific counters
-                    this.activeProjects.clear();
-                    this.workDays.clear();
-                    this.rewards.monthly['monthly-6'].current = 0; // Reset Weekly Warrior progress
-                }
-                
-                if (type === 'monthly') {
-                    // Reset monthly-specific counters
-                    this.nightWorkCount = 0;
-                    this.morningWorkCount = 0;
-                    this.workDays.clear();
-                }
-                
-                this.saveRewardsData();
-                this.renderRewards();
-            },
-
-            updateProgress(type, rewardId, amount = 1) {
-                if (!this.rewards[type] || !this.rewards[type][rewardId]) return;
-                
-                const reward = this.rewards[type][rewardId];
-                if (reward.completed) return;
-                
-                reward.current += amount;
-                
-                if (reward.current >= reward.target) {
-                    reward.completed = true;
-                    this.addToHistory(type, rewardId);
-                    
-                    // Check if all daily rewards are completed for Perfect Week
-                    if (type === 'daily') {
-                        this.updatePerfectWeekProgress();
-                    }
-                    
-                    // Check if all weekly rewards are completed for Weekly Warrior
-                    if (type === 'weekly') {
-                        this.updateWeeklyWarriorProgress();
-                    }
-                    
-                    // Check if all monthly rewards are completed for Ultimate Achiever
-                    if (type === 'monthly') {
-                        this.updateUltimateAchieverProgress();
-                    }
-                    
-                    // Show celebration
-                    this.showRewardAchievement(reward);
-                }
-                
-                this.saveRewardsData();
-                this.renderRewards();
-            },
-
-            showRewardAchievement(reward) {
-                DOM.rewardModalIcon.textContent = reward.icon;
-                DOM.rewardModalTitle.textContent = reward.name;
-                DOM.rewardModalDescription.textContent = reward.description;
-                
-                // Play applause sound for rewards
-                DOM.applauseSound.currentTime = 0;
-                DOM.applauseSound.play();
-                
-                // Show confetti
-                celebrationActions.createConfetti();
-                
-                // Show modal
-                DOM.rewardModal.classList.add('show');
-                
-                // Auto-hide after 5 seconds
-                setTimeout(() => {
-                    DOM.rewardModal.classList.remove('show');
-                }, 5000);
-            },
-
-            updatePerfectWeekProgress() {
-                const allCompleted = Object.values(this.rewards.daily).every(r => r.completed);
-                if (allCompleted) {
-                    this.rewards.weekly['weekly-5'].current = this.rewards.weekly['weekly-5'].target;
-                    this.rewards.weekly['weekly-5'].completed = true;
-                    this.addToHistory('weekly', 'weekly-5');
-                    this.showRewardAchievement(this.rewards.weekly['weekly-5']);
-                }
-            },
-
-            updateWeeklyWarriorProgress() {
-                const allCompleted = Object.values(this.rewards.weekly).every(r => r.completed);
-                if (allCompleted) {
-                    this.rewards.monthly['monthly-6'].current += 1;
-                    
-                    if (this.rewards.monthly['monthly-6'].current >= this.rewards.monthly['monthly-6'].target) {
-                        this.rewards.monthly['monthly-6'].completed = true;
-                        this.addToHistory('monthly', 'monthly-6');
-                        this.showRewardAchievement(this.rewards.monthly['monthly-6']);
-                    }
-                }
-            },
-
-            updateUltimateAchieverProgress() {
-                const allCompleted = Object.values(this.rewards.monthly).every(r => r.completed);
-                if (allCompleted) {
-                    this.rewards.monthly['monthly-10'].current = this.rewards.monthly['monthly-10'].target;
-                    this.rewards.monthly['monthly-10'].completed = true;
-                    this.addToHistory('monthly', 'monthly-10');
-                    this.showRewardAchievement(this.rewards.monthly['monthly-10']);
-                }
-            },
-
-            addToHistory(type, rewardId) {
-                const reward = this.rewards[type][rewardId];
+        },
+    
+        renderHistory(filter = 'all') {
+            const historyList = document.getElementById('historyList');
+            if (!historyList) return;
+            
+            historyList.innerHTML = '';
+            
+            const filteredHistory = filter === 'all' 
+                ? this.history 
+                : this.history.filter(item => item.type === filter);
+            
+            if (filteredHistory.length === 0) {
+                historyList.innerHTML = '<p class="empty-message">No rewards earned yet. Keep working!</p>';
+                return;
+            }
+            
+            filteredHistory.forEach(item => {
+                const reward = this.rewards[item.type]?.[item.id];
                 if (!reward) return;
                 
-                this.history.unshift({
-                    type,
-                    id: rewardId,
-                    name: reward.name,
-                    icon: reward.icon,
-                    date: new Date().toISOString()
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                
+                const date = new Date(item.date);
+                const formattedDate = date.toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
                 });
                 
-                // Keep only the last 100 history items
-                if (this.history.length > 100) {
-                    this.history.pop();
-                }
+                historyItem.innerHTML = `
+                    <div class="history-icon">${item.icon}</div>
+                    <div class="history-details">
+                        <h5>${item.name}</h5>
+                        <p>${reward.description}</p>
+                    </div>
+                    <div class="history-date">${formattedDate}</div>
+                `;
                 
-                this.saveRewardsData();
-                this.renderHistory();
-            },
-
-            trackPomodoroCompletion() {
-                // Update daily pomodoro rewards
-                this.updateProgress('daily', 'daily-1');
-                this.updateProgress('daily', 'daily-2');
-                this.updateProgress('daily', 'daily-3');
-                
-                // Update weekly pomodoro reward
-                this.updateProgress('weekly', 'weekly-2');
-                
-                // Update monthly pomodoro reward
-                this.updateProgress('monthly', 'monthly-4');
-            },
-
-            trackWorkTime(minutes) {
-                // Update daily time reward (convert minutes to hours for the target)
-                this.updateProgress('daily', 'daily-4', minutes);
-                
-                // Update weekly time reward
-                this.updateProgress('weekly', 'weekly-3', minutes);
-                
-                // Update monthly time reward
-                this.updateProgress('monthly', 'monthly-3', minutes);
-            },
-
-            trackBreakTaken() {
-                // Update daily break reward
-                this.updateProgress('daily', 'daily-5');
-            },
-
-            trackWorkDay() {
-                const today = new Date().toDateString();
-                const now = new Date();
-                
-                // Track work day for streak
-                if (!this.lastWorkDate || new Date(this.lastWorkDate).toDateString() !== today) {
-                    // Check if this is consecutive day
-                    const yesterday = new Date();
-                    yesterday.setDate(yesterday.getDate() - 1);
-                    
-                    if (this.lastWorkDate && new Date(this.lastWorkDate).toDateString() === yesterday.toDateString()) {
-                        this.currentStreak++;
-                    } else {
-                        this.currentStreak = 1;
-                    }
-                    
-                    this.lastWorkDate = now.toISOString();
-                    
-                    // Update daily work days
-                    this.workDays.add(today);
-                    
-                    // Update weekly work days reward
-                    this.updateProgress('weekly', 'weekly-1');
-                    
-                    // Update monthly work days reward
-                    this.updateProgress('monthly', 'monthly-1');
-                    
-                    // Update hot streak reward if applicable
-                    if (this.currentStreak >= 5) {
-                        this.updateProgress('monthly', 'monthly-2');
-                    }
-                    
-                    // Update consistency king reward
-                    if (this.workDays.size >= 10) {
-                        this.updateProgress('monthly', 'monthly-9');
-                    }
-                    
-                    // Check for weekend work (Saturday or Sunday)
-                    if (now.getDay() === 0 || now.getDay() === 6) {
-                        this.updateProgress('weekly', 'weekly-6');
-                    }
-                    
-                    // Check for night work (after 10 PM)
-                    if (now.getHours() >= 22) {
-                        this.nightWorkCount++;
-                        if (this.nightWorkCount >= 5) {
-                            this.updateProgress('monthly', 'monthly-7');
-                        }
-                    }
-                    
-                    // Check for morning work (before 8 AM)
-                    if (now.getHours() < 8) {
-                        this.morningWorkCount++;
-                        if (this.morningWorkCount >= 5) {
-                            this.updateProgress('monthly', 'monthly-8');
-                        }
-                    }
-                    
-                    this.saveRewardsData();
-                }
-            },
-
-            trackProjectWork(projectId) {
-                if (!projectId) return;
-                
-                this.activeProjects.add(projectId);
-                
-                // Update weekly project reward
-                this.updateProgress('weekly', 'weekly-4');
-                
-                // Update monthly project reward
-                this.updateProgress('monthly', 'monthly-5');
-            },
-
-            renderRewards() {
-                // Render all rewards with their current progress
-                for (const type in this.rewards) {
-                    for (const rewardId in this.rewards[type]) {
-                        const reward = this.rewards[type][rewardId];
-                        const card = document.querySelector(`.reward-card[data-id="${rewardId}"]`);
-                        
-                        if (card) {
-                            const progressBar = card.querySelector('.progress-bar div');
-                            const progressText = card.querySelector('.reward-progress span');
-                            
-                            if (progressBar && progressText) {
-                                const percent = Math.min(100, (reward.current / reward.target) * 100);
-                                progressBar.style.width = `${percent}%`;
-                                progressText.textContent = `${reward.current}/${reward.target}`;
-                                
-                                if (reward.completed) {
-                                    card.classList.add('completed');
-                                    progressBar.style.backgroundColor = '#4caf50';
-                                } else {
-                                    card.classList.remove('completed');
-                                    progressBar.style.backgroundColor = '#673ab7';
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-
-            renderHistory(filter = 'all') {
-                const historyList = document.getElementById('historyList');
-                if (!historyList) return;
-                
-                historyList.innerHTML = '';
-                
-                const filteredHistory = filter === 'all' 
-                    ? this.history 
-                    : this.history.filter(item => item.type === filter);
-                
-                if (filteredHistory.length === 0) {
-                    historyList.innerHTML = '<p class="empty-message">No rewards earned yet. Keep working!</p>';
-                    return;
-                }
-                
-                filteredHistory.forEach(item => {
-                    const reward = this.rewards[item.type]?.[item.id];
-                    if (!reward) return;
-                    
-                    const historyItem = document.createElement('div');
-                    historyItem.className = 'history-item';
-                    
-                    const date = new Date(item.date);
-                    const formattedDate = date.toLocaleDateString('en-US', { 
-                        month: 'short', 
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    });
-                    
-                    historyItem.innerHTML = `
-                        <div class="history-icon">${item.icon}</div>
-                        <div class="history-details">
-                            <h5>${item.name}</h5>
-                            <p>${reward.description}</p>
-                        </div>
-                        <div class="history-date">${formattedDate}</div>
-                    `;
-                    
-                    historyList.appendChild(historyItem);
-                });
-            }
-        };
-
-        // Initialize the rewards system when the page loads
-        STATE.rewardsSystem = rewardsSystem;
-
-        // Update timerActions.start() to track work days
-        const originalStart = timerActions.start;
-        timerActions.start = function() {
-            const result = originalStart.apply(this, arguments);
-            
-            if (result && result.then) {
-                return result.then(didStart => {
-                    if (didStart) {
-                        rewardsSystem.trackWorkDay();
-                        return didStart;
-                    }
+                historyList.appendChild(historyItem);
+            });
+        }
+    };
+    
+    // Initialize the rewards system when the page loads
+    STATE.rewardsSystem = rewardsSystem;
+    
+    // Update timerActions.start() to track work days
+    const originalStart = timerActions.start;
+    timerActions.start = function() {
+        const result = originalStart.apply(this, arguments);
+        
+        if (result && result.then) {
+            return result.then(didStart => {
+                if (didStart) {
+                    rewardsSystem.trackWorkDay();
                     return didStart;
-                });
-            } else {
-                rewardsSystem.trackWorkDay();
-                return result;
-            }
-        };
-
-        // Update timerActions.stop() to track pomodoro completion
-        const originalStop = timerActions.stop;
-        timerActions.stop = function() {
-            originalStop.apply(this, arguments);
-            
-            if (STATE.isWorkMode && STATE.totalSeconds <= 0) {
-                rewardsSystem.trackPomodoroCompletion();
-            }
-        };
-
-        // Update tracking to include rewards
-        const originalUpdateTracking = trackingActions.updateDisplay;
-        trackingActions.updateDisplay = function() {
-            originalUpdateTracking.apply(this, arguments);
-            
-            // Track work time (in minutes)
-            if (STATE.isRunning) {
-                const elapsedSeconds = Math.floor((Date.now() - STATE.lastTrackingUpdate) / 1000);
-                if (elapsedSeconds > 0) {
-                    const minutes = Math.floor(elapsedSeconds / 60);
-                    if (minutes > 0) {
-                        rewardsSystem.trackWorkTime(minutes);
-                    }
                 }
-            }
-        };
-
-        // Update project selection to track project work
-        const originalSetProject = projectActions.setCurrentProject;
-        projectActions.setCurrentProject = function(id) {
-            originalSetProject.apply(this, arguments);
-            rewardsSystem.trackProjectWork(id);
-        };
-
-        // ========== Initialization ==========
-        function setupEventListeners() {
-            DOM.startButton.addEventListener('click', () => {
-                timerActions.start().then((didStart) => {
-                    if (didStart) {
-                        // Timer started successfully
-                        console.log("Timer started");
-                    }
-                });
+                return didStart;
             });
-            DOM.pauseButton.addEventListener('click', timerActions.pause);
-            DOM.stopButton.addEventListener('click', timerActions.stop);
-            DOM.work25Button.addEventListener('click', () => timerActions.setQuickTime(25, 0, true));
-            DOM.break5Button.addEventListener('click', () => timerActions.setQuickTime(5, 0, false));
-            DOM.break30Button.addEventListener('click', () => timerActions.setQuickTime(30, 0, false));
-            DOM.setWorkModeButton.addEventListener('click', () => timerActions.setMode(true));
-            DOM.setBreakModeButton.addEventListener('click', () => timerActions.setMode(false));
-            
-            DOM.resetTracking.addEventListener('click', trackingActions.resetTracking);
-            
-            DOM.addProjectBtn.addEventListener('click', projectActions.addProject.bind(projectActions));
-            DOM.projectInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    projectActions.addProject();
-                }
-            });
-
-            // Handle timer display edits
-            DOM.timer.addEventListener('blur', () => {
-                const timeString = DOM.timer.textContent;
-                const [minutes, seconds] = timeString.split(':').map(Number);
-                STATE.totalSeconds = minutes * 60 + seconds;
-                STATE.initialSeconds = STATE.totalSeconds;
-            });
-            
-            DOM.timer.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    DOM.timer.blur();
-                }
-            });
-
-            // Initialize dropdown menu
-            dropdownActions.init();
-            
-            // Initialize rewards system
-            rewardsSystem.init();
-            
-            // Initialize data tracking
-            dataTracking.init();
+        } else {
+            rewardsSystem.trackWorkDay();
+            return result;
         }
-
-        function init() {
-            setupEventListeners();
-            
-            // Load saved state
-            STATE.totalWorkSeconds = parseInt(localStorage.getItem('totalWorkSeconds')) || 0;
-            STATE.totalBreakSeconds = parseInt(localStorage.getItem('totalBreakSeconds')) || 0;
-            trackingActions.updateDisplay();
-            
-            projectActions.loadProjects();
-            timerActions.updateModeIndicator();
-            
-            // Set initial progress circle
-            DOM.timerProgress.style.background = `conic-gradient(var(--primary-blue) 0%, transparent 0%)`;
-            
-            // Initialize audio elements
-            document.querySelectorAll('audio').forEach(audio => {
-                audio.volume = 0.5;
-                audio.addEventListener('error', (e) => {
-                    console.error('Audio error:', e.target.src, 'failed to load');
-                });
-            });
+    };
+    
+    // Update timerActions.stop() to track pomodoro completion
+    const originalStop = timerActions.stop;
+    timerActions.stop = function() {
+        originalStop.apply(this, arguments);
+        
+        if (STATE.isWorkMode && STATE.totalSeconds <= 0) {
+            rewardsSystem.trackPomodoroCompletion();
         }
-
-        init();
+    };
+    
+    // Update tracking to include rewards
+    const originalUpdateTracking = trackingActions.updateDisplay;
+    trackingActions.updateDisplay = function() {
+        originalUpdateTracking.apply(this, arguments);
+        
+        // Track work time (in minutes)
+        if (STATE.isRunning) {
+            const elapsedSeconds = Math.floor((Date.now() - STATE.lastTrackingUpdate) / 1000);
+            if (elapsedSeconds > 0) {
+                const minutes = Math.floor(elapsedSeconds / 60);
+                if (minutes > 0) {
+                    rewardsSystem.trackWorkTime(minutes);
+                }
+            }
+        }
+    };
+    
+    // Update project selection to track project work
+    const originalSetProject = projectActions.setCurrentProject;
+    projectActions.setCurrentProject = function(id) {
+        originalSetProject.apply(this, arguments);
+        rewardsSystem.trackProjectWork(id);
+    };
+    
+    // ========== Initialization ==========
+    function setupEventListeners() {
+        DOM.startButton.addEventListener('click', () => {
+            timerActions.start().then((didStart) => {
+                if (didStart) {
+                    // Timer started successfully
+                    console.log("Timer started");
+                }
+            });
+        });
+        DOM.pauseButton.addEventListener('click', timerActions.pause);
+        DOM.stopButton.addEventListener('click', timerActions.stop);
+        DOM.work25Button.addEventListener('click', () => timerActions.setQuickTime(25, 0, true));
+        DOM.break5Button.addEventListener('click', () => timerActions.setQuickTime(5, 0, false));
+        DOM.break30Button.addEventListener('click', () => timerActions.setQuickTime(30, 0, false));
+        DOM.setWorkModeButton.addEventListener('click', () => timerActions.setMode(true));
+        DOM.setBreakModeButton.addEventListener('click', () => timerActions.setMode(false));
+        
+        DOM.resetTracking.addEventListener('click', trackingActions.resetTracking);
+        
+        DOM.addProjectBtn.addEventListener('click', projectActions.addProject.bind(projectActions));
+        DOM.projectInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                projectActions.addProject();
+            }
+        });
+    
+        // Handle timer display edits
+        DOM.timer.addEventListener('blur', () => {
+            const timeString = DOM.timer.textContent;
+            const [minutes, seconds] = timeString.split(':').map(Number);
+            STATE.totalSeconds = minutes * 60 + seconds;
+            STATE.initialSeconds = STATE.totalSeconds;
+        });
+        
+        DOM.timer.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                DOM.timer.blur();
+            }
+        });
+    
+        // Initialize dropdown menu
+        dropdownActions.init();
+        
+        // Initialize rewards system
+        rewardsSystem.init();
+        
+        // Initialize data tracking
+        dataTracking.init();
+    }
+    
+    function init() {
+        setupEventListeners();
+        
+        // Load saved state
+        STATE.totalWorkSeconds = parseInt(localStorage.getItem('totalWorkSeconds')) || 0;
+        STATE.totalBreakSeconds = parseInt(localStorage.getItem('totalBreakSeconds')) || 0;
+        trackingActions.updateDisplay();
+        
+        projectActions.loadProjects();
+        timerActions.updateModeIndicator();
+        
+        // Set initial progress circle
+        DOM.timerProgress.style.background = `conic-gradient(var(--primary-blue) 0%, transparent 0%)`;
+        
+        // Initialize audio elements
+        document.querySelectorAll('audio').forEach(audio => {
+            audio.volume = 0.5;
+            audio.addEventListener('error', (e) => {
+                console.error('Audio error:', e.target.src, 'failed to load');
+            });
+        });
+    }
+    
+    init();
     </script>
 </body>
 </html>
