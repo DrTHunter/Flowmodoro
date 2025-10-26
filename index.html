@@ -1983,7 +1983,7 @@
                 }
                 
                 STATE.timer = setInterval(() => {
-                    // FIXED: Check if timer reached 0 BEFORE decrementing
+                    // FIXED: Check if timer reached 0 and handle completion
                     if (STATE.totalSeconds <= 0) {
                         // Stop the timer immediately
                         clearInterval(STATE.timer);
@@ -2042,6 +2042,12 @@
                         
                         trackingActions.updateDisplay();
                         
+                        // FIXED: Reset UI buttons BEFORE switching modes
+                        DOM.startButton.style.display = 'inline-block';
+                        DOM.pauseButton.style.display = 'none';
+                        DOM.stopButton.style.display = 'none';
+                        STATE.sessionStartTime = null;
+                        
                         // Switch modes
                         STATE.isWorkMode = !STATE.isWorkMode;
                         timerActions.updateModeIndicator();
@@ -2071,13 +2077,7 @@
                             }
                         }
                         
-                        // FIXED: Reset UI buttons properly
-                        DOM.startButton.style.display = 'inline-block';
-                        DOM.pauseButton.style.display = 'none';
-                        DOM.stopButton.style.display = 'none';
-                        STATE.sessionStartTime = null;
-                        
-                        return; // Stop further execution
+                        return; // Stop further execution for this interval
                     }
                     
                     // Only decrement and update if timer is still running above 0
@@ -2087,38 +2087,36 @@
                     const progressPercent = 100 - (STATE.totalSeconds / STATE.initialSeconds * 100);
                     DOM.timerProgress.style.background = `conic-gradient(var(--primary-blue) ${progressPercent}%, transparent ${progressPercent}%)`;
                     
-                    // FIXED: Update tracking every second (more accurate)
                     const now = Date.now();
-                    if (STATE.isWorkMode) {
-                        STATE.totalWorkSeconds++;
-                        if (STATE.currentProject) {
-                            const project = STATE.projects.find(p => p.id === STATE.currentProject);
-                            if (project) {
-                                project.workTime++;
-                                projectActions.saveProjects();
-                                // Update display more frequently for real-time feedback
-                                if (now - STATE.lastTrackingUpdate > 1000) {
-                                    projectActions.renderProjects();
-                                    STATE.lastTrackingUpdate = now;
-                                }
-                            }
-                        }
-                    } else {
-                        STATE.totalBreakSeconds++;
-                        if (STATE.currentProject) {
-                            const project = STATE.projects.find(p => p.id === STATE.currentProject);
-                            if (project) {
-                                project.breakTime++;
-                                projectActions.saveProjects();
-                                if (now - STATE.lastTrackingUpdate > 1000) {
-                                    projectActions.renderProjects();
-                                    STATE.lastTrackingUpdate = now;
-                                }
-                            }
-                        }
-                    }
+                    const elapsedSeconds = Math.floor((now - STATE.lastTrackingUpdate) / 1000);
                     
-                    trackingActions.updateDisplay();
+                    if (elapsedSeconds >= 1) {
+                        if (STATE.isWorkMode) {
+                            STATE.totalWorkSeconds += elapsedSeconds;
+                            if (STATE.currentProject) {
+                                const project = STATE.projects.find(p => p.id === STATE.currentProject);
+                                if (project) {
+                                    project.workTime += elapsedSeconds;
+                                    projectActions.saveProjects();
+                                    projectActions.renderProjects();
+                                    dataTracking.updateDailyData(project.id, elapsedSeconds, 0, 0);
+                                }
+                            }
+                        } else {
+                            STATE.totalBreakSeconds += elapsedSeconds;
+                            if (STATE.currentProject) {
+                                const project = STATE.projects.find(p => p.id === STATE.currentProject);
+                                if (project) {
+                                    project.breakTime += elapsedSeconds;
+                                    projectActions.saveProjects();
+                                    projectActions.renderProjects();
+                                    dataTracking.updateDailyData(project.id, 0, elapsedSeconds, 0);
+                                }
+                            }
+                        }
+                        STATE.lastTrackingUpdate = now;
+                        trackingActions.updateDisplay();
+                    }
                 }, 1000);
                 
                 return true;
@@ -2300,7 +2298,6 @@
                     
                     STATE.projects.push(project);
                     this.saveProjects();
-                    this.saveProjectTime();
                     this.renderProjects();
                     DOM.projectInput.value = '';
                 }
@@ -2312,7 +2309,6 @@
                     STATE.currentProject = null;
                 }
                 this.saveProjects();
-                this.saveProjectTime();
                 this.renderProjects();
             },
             
@@ -2329,15 +2325,6 @@
                 localStorage.setItem('projects', JSON.stringify(STATE.projects));
             },
             
-            saveProjectTime() {
-                const timeData = {
-                    totalWorkSeconds: STATE.totalWorkSeconds,
-                    totalBreakSeconds: STATE.totalBreakSeconds,
-                    projects: STATE.projects
-                };
-                localStorage.setItem('projectTimeData', JSON.stringify(timeData));
-            },
-            
             loadProjects() {
                 const savedProjects = localStorage.getItem('projects');
                 if (savedProjects) {
@@ -2346,34 +2333,13 @@
                 }
             },
             
-            loadProjectTime() {
-                const savedData = localStorage.getItem('projectTimeData');
-                if (savedData) {
-                    const timeData = JSON.parse(savedData);
-                    STATE.totalWorkSeconds = timeData.totalWorkSeconds || 0;
-                    STATE.totalBreakSeconds = timeData.totalBreakSeconds || 0;
-                    STATE.projects = timeData.projects || [];
-                    trackingActions.updateDisplay();
-                    this.renderProjects();
-                }
-            },
-            
             renderProjects() {
                 DOM.projectList.innerHTML = '';
 
-                // FIXED: Improved time formatting function
                 const formatProjectTime = (seconds) => {
-                    if (seconds < 60) {
-                        return `${seconds}s`; // Show seconds for very short times
-                    } else if (seconds < 3600) {
-                        const minutes = Math.floor(seconds / 60);
-                        const remainingSeconds = seconds % 60;
-                        return `${minutes}m ${remainingSeconds}s`;
-                    } else {
-                        const hours = Math.floor(seconds / 3600);
-                        const minutes = Math.floor((seconds % 3600) / 60);
-                        return `${hours}h ${minutes}m`;
-                    }
+                    const hours = Math.floor(seconds / 3600);
+                    const minutes = Math.floor((seconds % 3600) / 60);
+                    return `${hours}h ${minutes}m`;
                 };
 
                 STATE.projects.forEach(project => {
@@ -2980,18 +2946,9 @@
                 if (confirm('Are you sure you want to reset all tracking time?')) {
                     STATE.totalWorkSeconds = 0;
                     STATE.totalBreakSeconds = 0;
-                    
-                    // FIXED: Also reset all project times
-                    STATE.projects.forEach(project => {
-                        project.workTime = 0;
-                        project.breakTime = 0;
-                        project.pomodoros = 0;
-                    });
-                    
                     this.updateDisplay();
-                    projectActions.saveProjects();
-                    projectActions.saveProjectTime();
-                    projectActions.renderProjects();
+                    localStorage.setItem('totalWorkSeconds', '0');
+                    localStorage.setItem('totalBreakSeconds', '0');
                 }
             }
         };
@@ -3742,19 +3699,12 @@
         function init() {
             setupEventListeners();
             
-            // FIXED: Load saved state with improved project time loading
-            projectActions.loadProjectTime(); // Load project time data first
-            projectActions.loadProjects();    // Then load projects
-            
-            // If no time data was loaded, initialize from legacy storage
-            if (STATE.totalWorkSeconds === 0) {
-                STATE.totalWorkSeconds = parseInt(localStorage.getItem('totalWorkSeconds')) || 0;
-            }
-            if (STATE.totalBreakSeconds === 0) {
-                STATE.totalBreakSeconds = parseInt(localStorage.getItem('totalBreakSeconds')) || 0;
-            }
-            
+            // Load saved state
+            STATE.totalWorkSeconds = parseInt(localStorage.getItem('totalWorkSeconds')) || 0;
+            STATE.totalBreakSeconds = parseInt(localStorage.getItem('totalBreakSeconds')) || 0;
             trackingActions.updateDisplay();
+            
+            projectActions.loadProjects();
             timerActions.updateModeIndicator();
             
             // Set initial progress circle
