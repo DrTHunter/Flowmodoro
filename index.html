@@ -1983,51 +1983,14 @@
                 }
                 
                 STATE.timer = setInterval(() => {
-                    STATE.totalSeconds--;
-                    timerActions.updateDisplay();
-                    
-                    const progressPercent = 100 - (STATE.totalSeconds / STATE.initialSeconds * 100);
-                    DOM.timerProgress.style.background = `conic-gradient(var(--primary-blue) ${progressPercent}%, transparent ${progressPercent}%)`;
-                    
-                    const now = Date.now();
-                    const elapsedSeconds = Math.floor((now - STATE.lastTrackingUpdate) / 1000);
-                    
-                    if (elapsedSeconds >= 1) {
-                        if (STATE.isWorkMode) {
-                            STATE.totalWorkSeconds += elapsedSeconds;
-                            if (STATE.currentProject) {
-                                const project = STATE.projects.find(p => p.id === STATE.currentProject);
-                                if (project) {
-                                    project.workTime += elapsedSeconds;
-                                    projectActions.saveProjects();
-                                    projectActions.renderProjects();
-                                    dataTracking.updateDailyData(project.id, elapsedSeconds, 0, 0);
-                                }
-                            }
-                        } else {
-                            STATE.totalBreakSeconds += elapsedSeconds;
-                            if (STATE.currentProject) {
-                                const project = STATE.projects.find(p => p.id === STATE.currentProject);
-                                if (project) {
-                                    project.breakTime += elapsedSeconds;
-                                    projectActions.saveProjects();
-                                    projectActions.renderProjects();
-                                    dataTracking.updateDailyData(project.id, 0, elapsedSeconds, 0);
-                                }
-                            }
-                        }
-                        STATE.lastTrackingUpdate = now;
-                        trackingActions.updateDisplay();
-                    }
-                    
-                    // FIXED: Stop the timer and trigger alarm at exactly 0
+                    // FIXED: Check if timer reached 0 BEFORE decrementing
                     if (STATE.totalSeconds <= 0) {
                         // Stop the timer immediately
                         clearInterval(STATE.timer);
                         STATE.isRunning = false;
                         STATE.isPaused = false;
                         
-                        // Set timer to exactly 0
+                        // Ensure timer is exactly 0
                         STATE.totalSeconds = 0;
                         timerActions.updateDisplay();
                         
@@ -2114,7 +2077,45 @@
                         DOM.stopButton.style.display = 'none';
                         STATE.sessionStartTime = null;
                         
-                        return; // CRITICAL: Stop further execution
+                        return; // Stop further execution
+                    }
+                    
+                    // Only decrement and update if timer is still running above 0
+                    STATE.totalSeconds--;
+                    timerActions.updateDisplay();
+                    
+                    const progressPercent = 100 - (STATE.totalSeconds / STATE.initialSeconds * 100);
+                    DOM.timerProgress.style.background = `conic-gradient(var(--primary-blue) ${progressPercent}%, transparent ${progressPercent}%)`;
+                    
+                    const now = Date.now();
+                    const elapsedSeconds = Math.floor((now - STATE.lastTrackingUpdate) / 1000);
+                    
+                    if (elapsedSeconds >= 1) {
+                        if (STATE.isWorkMode) {
+                            STATE.totalWorkSeconds += elapsedSeconds;
+                            if (STATE.currentProject) {
+                                const project = STATE.projects.find(p => p.id === STATE.currentProject);
+                                if (project) {
+                                    project.workTime += elapsedSeconds;
+                                    projectActions.saveProjects();
+                                    projectActions.renderProjects();
+                                    dataTracking.updateDailyData(project.id, elapsedSeconds, 0, 0);
+                                }
+                            }
+                        } else {
+                            STATE.totalBreakSeconds += elapsedSeconds;
+                            if (STATE.currentProject) {
+                                const project = STATE.projects.find(p => p.id === STATE.currentProject);
+                                if (project) {
+                                    project.breakTime += elapsedSeconds;
+                                    projectActions.saveProjects();
+                                    projectActions.renderProjects();
+                                    dataTracking.updateDailyData(project.id, 0, elapsedSeconds, 0);
+                                }
+                            }
+                        }
+                        STATE.lastTrackingUpdate = now;
+                        trackingActions.updateDisplay();
                     }
                 }, 1000);
                 
