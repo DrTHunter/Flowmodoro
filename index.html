@@ -2023,14 +2023,8 @@
                     DOM.startButton.style.display = 'inline-block';
                     DOM.pauseButton.style.display = 'none';
                     DOM.stopButton.style.display = 'none';
-                    STATE.sessionStartTime = null;
                     
-                    // Only trigger confetti for work sessions
-                    if (STATE.isWorkMode) {
-                        celebrationActions.triggerCelebration();
-                    }
-                    
-                    // Handle session completion
+                    // FIXED: Calculate session duration BEFORE resetting sessionStartTime
                     const sessionEndTime = new Date();
                     const sessionDuration = Math.floor((sessionEndTime - STATE.sessionStartTime) / 1000);
                     
@@ -2062,6 +2056,12 @@
                     }
                     
                     trackingActions.updateDisplay();
+                    STATE.sessionStartTime = null; // Moved this AFTER calculating duration
+                    
+                    // Only trigger confetti for work sessions
+                    if (STATE.isWorkMode) {
+                        celebrationActions.triggerCelebration();
+                    }
                     
                     // Switch modes
                     STATE.isWorkMode = !STATE.isWorkMode;
