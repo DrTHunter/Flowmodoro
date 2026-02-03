@@ -167,7 +167,3 @@ Full license text is available in the LICENSE file.
 
 Built to make focused work simple and enjoyable — enjoy your productivity boosts! 🚀
 
-
----
-
-If you want, I can also help you generate badges, a full license section, or a contribution guide 👍.
