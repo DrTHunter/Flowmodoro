@@ -154,8 +154,12 @@ Contributions, bug fixes, and enhancements are welcome! If you want to improve f
 
 📜 License
 
-Add your chosen license here (e.g., MIT, GPL, etc.).
+This project is licensed under the Creative Commons Attribution–NonCommercial 4.0 International License (CC BY-NC 4.0).
 
+You may use, modify, and share this project for personal and non-commercial purposes.  
+Commercial use of any kind is prohibited.
+
+Full license text is available in the LICENSE file.
 
 ---
 
