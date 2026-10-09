@@ -1041,3 +1041,235 @@ html.embedded .timer-chip { display: none !important; }
     .app-switch a { padding: 7px 11px; }
     .timer-chip { padding: 7px 12px; font-size: .95em; }
 }
+
+/* ==========================================================================
+   Projects — colour-coded cards with goals, a 7-day strip and a share bar
+   ========================================================================== */
+.tracking-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: fit-content;
+    max-width: 100%;
+    margin: 10px auto 0;
+    padding: 6px 14px;
+    font-size: .8em;
+    font-weight: 500;
+    color: var(--muted);
+    background: transparent;
+    border: 1px dashed var(--border-strong);
+}
+.tracking-chip span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tracking-chip i { width: 8px; height: 8px; border-radius: 50%; background: var(--faint); flex-shrink: 0; }
+.tracking-chip.active {
+    color: var(--text);
+    border-style: solid;
+    border-color: color-mix(in srgb, var(--pc) 45%, transparent);
+    background: color-mix(in srgb, var(--pc) 12%, transparent);
+}
+.tracking-chip.active i { background: var(--pc); box-shadow: 0 0 10px var(--pc); }
+body.is-running .tracking-chip.active i { animation: blink 1.6s ease-in-out infinite; }
+
+.projects-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.projects-head h3 { margin: 0 !important; }
+.projects-summary { color: var(--faint); font-size: .8em; font-family: var(--font-num); text-align: right; }
+
+.projects-share {
+    display: flex;
+    gap: 2px;
+    height: 6px;
+    margin-bottom: 14px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: var(--surface);
+}
+.projects-share[hidden] { display: none; }
+.projects-share span { min-width: 4px; transition: flex-grow .6s var(--ease); }
+
+.project-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+.pc-empty {
+    padding: 22px 16px;
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-md);
+    color: var(--faint);
+    font-size: .88em;
+    line-height: 1.6;
+}
+
+.pcard {
+    --pc: var(--accent);
+    position: relative;
+    text-align: left;
+    padding: 14px 16px 12px 18px;
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    transition: border-color .25s, background .25s, box-shadow .25s, transform .25s var(--ease);
+    animation: pop .3s var(--ease);
+}
+.pcard::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--pc);
+    box-shadow: 0 0 12px var(--pc);
+}
+.pcard:hover { border-color: var(--border-strong); }
+.pcard.tracking {
+    background: color-mix(in srgb, var(--pc) 9%, transparent);
+    border-color: color-mix(in srgb, var(--pc) 50%, transparent);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--pc) 22%, transparent), 0 14px 34px -16px var(--pc);
+}
+
+.pc-top { display: flex; align-items: center; gap: 10px; }
+.pc-dot {
+    width: 14px; height: 14px;
+    padding: 0;
+    flex-shrink: 0;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,.25);
+    background: var(--pc);
+    box-shadow: 0 0 10px var(--pc);
+}
+.pc-dot:hover { transform: scale(1.2); background: var(--pc); border-color: #fff; }
+.pc-name {
+    flex: 1;
+    min-width: 0;
+    font-weight: 600;
+    font-size: 1.02em;
+    color: var(--text);
+    padding: 2px 6px;
+    margin-left: -6px;
+    border-radius: 8px;
+    outline: none;
+    overflow-wrap: anywhere;
+}
+.pc-name:hover { background: var(--surface-2); }
+.pc-name:focus { background: rgba(0,0,0,.35); box-shadow: 0 0 0 1px var(--pc); }
+.pc-track {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 14px;
+    font-size: .8em;
+    background: var(--surface-2);
+}
+.pc-track:hover { border-color: color-mix(in srgb, var(--pc) 55%, transparent); }
+.pcard.tracking .pc-track {
+    color: #0b0a12;
+    border-color: transparent;
+    background: var(--pc);
+    box-shadow: 0 6px 18px -6px var(--pc);
+}
+.pc-track i { width: 6px; height: 6px; border-radius: 50%; background: #0b0a12; }
+body.is-running .pcard.tracking .pc-track i { animation: blink 1.6s ease-in-out infinite; }
+.pc-delete {
+    flex-shrink: 0;
+    padding: 5px 10px;
+    font-size: .78em;
+    color: var(--faint);
+    background: transparent;
+    border-color: transparent;
+}
+.pc-delete:hover { color: #ff8b97; border-color: rgba(255,92,108,.35); background: rgba(255,92,108,.08); }
+.pc-delete.armed { color: #fff; background: #ff5c6c; border-color: transparent; animation: pop .2s var(--ease); }
+
+.pc-stats { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 10px 0 0; font-family: var(--font-num); font-size: .9em; color: var(--text); }
+.pc-stat { display: inline-flex; align-items: baseline; gap: 6px; }
+.pc-stat b { font-weight: 400; font-size: .95em; }
+.pc-stat small { color: var(--faint); font-size: .85em; }
+.pc-num { padding: 0 4px; border-radius: 6px; outline: none; min-width: 1ch; }
+.pc-num:hover { background: var(--surface-2); }
+.pc-num:focus { background: rgba(0,0,0,.35); box-shadow: 0 0 0 1px var(--pc); }
+
+.pc-goal { display: flex; align-items: center; gap: 10px; margin-top: 10px; min-height: 22px; }
+.pc-bar { flex: 1; height: 6px; border-radius: 999px; background: rgba(0,0,0,.35); overflow: hidden; }
+.pc-bar span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--pc) 60%, #fff), var(--pc));
+    box-shadow: 0 0 10px var(--pc);
+    transition: width .6s var(--ease);
+}
+.pc-goal-label { font-size: .78em; color: var(--muted); font-family: var(--font-num); white-space: nowrap; }
+.pcard.goal-met .pc-bar span { background: linear-gradient(90deg, #ffd666, #ffa94d); box-shadow: 0 0 12px #ffd666; }
+.pc-set-goal {
+    padding: 3px 10px;
+    font-size: .76em;
+    font-weight: 500;
+    color: var(--faint);
+    background: transparent;
+    border-style: dashed;
+}
+.pc-set-goal:hover { color: var(--text); border-color: var(--pc); }
+
+.pc-week {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    height: 46px;
+    margin-top: 12px;
+}
+.pc-week span { display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 3px; min-width: 0; }
+.pc-week i {
+    display: block;
+    width: 100%;
+    max-width: 22px;
+    min-height: 3px;
+    border-radius: 4px 4px 2px 2px;
+    background: color-mix(in srgb, var(--pc) 45%, transparent);
+    transition: height .6s var(--ease);
+}
+.pc-week span.today i { background: var(--pc); box-shadow: 0 0 10px color-mix(in srgb, var(--pc) 70%, transparent); }
+.pc-week em { font-style: normal; font-size: .62em; color: var(--faint); line-height: 1; }
+.pc-week span.today em { color: var(--text); }
+/* keep the bar area from collapsing: bars size against the column minus the label */
+.pc-week span { height: 100%; }
+.pc-week i { flex: 0 0 auto; max-height: calc(100% - 12px); }
+
+.pc-notes { margin-top: 10px; }
+.pc-notes summary {
+    cursor: pointer;
+    list-style: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: .78em;
+    color: var(--faint);
+    user-select: none;
+}
+.pc-notes summary::-webkit-details-marker { display: none; }
+.pc-notes summary::before { content: '▸'; transition: transform .2s; }
+.pc-notes[open] summary::before { transform: rotate(90deg); }
+.pc-notes summary small { color: var(--pc); }
+.pc-notes summary:hover { color: var(--text); }
+.pc-notes textarea {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 70px;
+    margin-top: 8px;
+    padding: 10px 12px;
+    resize: vertical;
+    font-family: var(--font-ui);
+    font-size: .9em;
+    color: var(--text);
+    background: rgba(0,0,0,.3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    outline: none;
+}
+.pc-notes textarea:focus { border-color: var(--pc); box-shadow: 0 0 0 3px color-mix(in srgb, var(--pc) 22%, transparent); }
+
+@media (max-width: 520px) {
+    .pc-top { flex-wrap: wrap; }
+    .pc-name { flex-basis: calc(100% - 30px); order: 0; }
+    .pc-track { order: 2; }
+    .pc-delete { order: 3; margin-left: auto; }
+    .projects-head { flex-direction: column; align-items: flex-start; gap: 4px; }
+    .projects-summary { text-align: left; }
+}

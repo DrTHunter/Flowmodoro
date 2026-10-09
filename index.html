@@ -1727,6 +1727,7 @@
         </div>
         
         <div class="mode-indicator" id="modeIndicator">Work Time</div>
+        <button class="tracking-chip" id="trackingChip" type="button" title="Jump to projects"><i></i><span id="trackingChipLabel">Add a project to track</span></button>
         
         <div class="timer-container">
             <div class="orrery" aria-hidden="true">
@@ -1771,10 +1772,14 @@
             <button id="resetTracking" class="reset-tracking-btn">Reset Tracking Time</button>
             
             <div class="projects-container">
-                <h3>Project Tracking</h3>
+                <div class="projects-head">
+                    <h3>Projects</h3>
+                    <span class="projects-summary" id="projectsSummary"></span>
+                </div>
+                <div class="projects-share" id="projectsShare" hidden></div>
                 <div class="project-input">
-                    <input type="text" id="projectInput" placeholder="Enter project name">
-                    <button id="addProjectBtn">Add Project</button>
+                    <input type="text" id="projectInput" placeholder="New project — e.g. Thesis, Portfolio, Side quest" maxlength="80">
+                    <button id="addProjectBtn">＋ Add</button>
                 </div>
                 <div class="project-list" id="projectList"></div>
             </div>
@@ -1802,6 +1807,10 @@
         projectInput: document.getElementById('projectInput'),
         addProjectBtn: document.getElementById('addProjectBtn'),
         projectList: document.getElementById('projectList'),
+        projectsSummary: document.getElementById('projectsSummary'),
+        projectsShare: document.getElementById('projectsShare'),
+        trackingChip: document.getElementById('trackingChip'),
+        trackingChipLabel: document.getElementById('trackingChipLabel'),
         body: document.body,
         alarmSound: document.getElementById('alarmSound'),
         applauseSound: document.getElementById('applauseSound'),
@@ -2193,147 +2202,244 @@
     
     // ========== Project Tracking Functions ==========
     const projectActions = {
+        // Card accent colours, cycled by clicking a project's dot
+        COLORS: ['#ff4d8d', '#2ee6a6', '#a78bfa', '#38bdf8', '#fbbf24', '#fb7185', '#34d399', '#f97316'],
+        pendingDelete: null,
+
+        escape(str) {
+            const div = document.createElement('div');
+            div.textContent = str == null ? '' : String(str);
+            return div.innerHTML;
+        },
+
+        formatDuration(seconds) {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            return h ? `${h}h ${m}m` : `${m}m`;
+        },
+
+        colorOf(project) {
+            return this.COLORS[(project.color || 0) % this.COLORS.length];
+        },
+
+        // Last 7 days of focus seconds for one project (keys match dataTracking's dates)
+        weekOf(projectId) {
+            const days = [];
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date(Date.now() - i * 86400000);
+                const key = d.toISOString().split('T')[0];
+                const entry = STATE.dailyData[key] && STATE.dailyData[key].projects[projectId];
+                days.push({
+                    label: d.toLocaleDateString(undefined, { weekday: 'short' }),
+                    seconds: entry ? entry.workTime : 0,
+                    today: i === 0
+                });
+            }
+            return days;
+        },
+
         addProject() {
             const projectName = DOM.projectInput.value.trim();
-            if (projectName) {
-                const project = {
-                    id: Date.now().toString(),
-                    name: projectName,
-                    pomodoros: 0,
-                    breaks: 0,
-                    workTime: 0,
-                    breakTime: 0,
-                    notes: ''
-                };
-                
-                STATE.projects.push(project);
-                this.saveProjects();
-                this.renderProjects();
-                DOM.projectInput.value = '';
-            }
+            if (!projectName) { DOM.projectInput.focus(); return; }
+            STATE.projects.push({
+                id: Date.now().toString(),
+                name: projectName.slice(0, 80),
+                pomodoros: 0,
+                breaks: 0,
+                workTime: 0,
+                breakTime: 0,
+                notes: '',
+                goal: 0,
+                color: STATE.projects.length % this.COLORS.length
+            });
+            this.saveProjects();
+            this.renderProjects();
+            DOM.projectInput.value = '';
         },
-        
+
+        // Two-step delete: first click arms, second click (within 3s) deletes
         deleteProject(id) {
-            STATE.projects = STATE.projects.filter(project => project.id !== id);
-            if (STATE.currentProject === id) {
-                STATE.currentProject = null;
+            if (this.pendingDelete !== id) {
+                this.pendingDelete = id;
+                this.renderProjects();
+                clearTimeout(this._deleteTimer);
+                this._deleteTimer = setTimeout(() => {
+                    if (this.pendingDelete === id) { this.pendingDelete = null; this.renderProjects(); }
+                }, 3000);
+                return;
             }
+            this.pendingDelete = null;
+            STATE.projects = STATE.projects.filter(project => project.id !== id);
+            if (STATE.currentProject === id) this.setCurrentProject(null);
             this.saveProjects();
             this.renderProjects();
         },
-        
+
         setCurrentProject(id) {
-            if (STATE.currentProject === id) {
-                STATE.currentProject = null;
-            } else {
-                STATE.currentProject = id;
-            }
+            STATE.currentProject = STATE.currentProject === id ? null : id;
+            try {
+                if (STATE.currentProject) localStorage.setItem('flowmodoroCurrentProject', STATE.currentProject);
+                else localStorage.removeItem('flowmodoroCurrentProject');
+            } catch (e) {}
             this.renderProjects();
         },
-        
+
         saveProjects() {
             localStorage.setItem('projects', JSON.stringify(STATE.projects));
         },
-        
+
         loadProjects() {
             const savedProjects = localStorage.getItem('projects');
-            if (savedProjects) {
-                STATE.projects = JSON.parse(savedProjects);
-                this.renderProjects();
-            }
+            if (savedProjects) STATE.projects = JSON.parse(savedProjects);
+            let saved = null;
+            try { saved = localStorage.getItem('flowmodoroCurrentProject'); } catch (e) {}
+            if (saved && STATE.projects.some(p => p.id === saved)) STATE.currentProject = saved;
+            DOM.trackingChip.addEventListener('click', () => {
+                DOM.projectList.closest('.projects-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                if (!STATE.projects.length) DOM.projectInput.focus();
+            });
+            this.renderProjects();
         },
-        
+
+        renderSummary() {
+            const projects = STATE.projects;
+            const totalWork = projects.reduce((s, p) => s + (p.workTime || 0), 0);
+            const totalPomos = projects.reduce((s, p) => s + (p.pomodoros || 0), 0);
+            DOM.projectsSummary.textContent = projects.length
+                ? `${projects.length} project${projects.length === 1 ? '' : 's'} · ${this.formatDuration(totalWork)} focused · ${totalPomos} 🍅`
+                : '';
+
+            // Share of focus time across projects
+            DOM.projectsShare.innerHTML = '';
+            DOM.projectsShare.hidden = totalWork === 0;
+            if (totalWork > 0) {
+                projects.filter(p => p.workTime > 0).forEach(p => {
+                    const seg = document.createElement('span');
+                    seg.style.flexGrow = p.workTime;
+                    seg.style.background = this.colorOf(p);
+                    seg.title = `${p.name}: ${this.formatDuration(p.workTime)} (${Math.round(p.workTime / totalWork * 100)}%)`;
+                    DOM.projectsShare.appendChild(seg);
+                });
+            }
+
+            // What the timer is counting toward
+            const current = projects.find(p => p.id === STATE.currentProject);
+            DOM.trackingChip.classList.toggle('active', !!current);
+            DOM.trackingChip.style.setProperty('--pc', current ? this.colorOf(current) : '');
+            DOM.trackingChipLabel.textContent = current ? current.name : (projects.length ? 'No project — pick one' : 'Add a project to track');
+        },
+
         renderProjects() {
             DOM.projectList.innerHTML = '';
-    
-            const formatProjectTime = (seconds) => {
-                const hours = Math.floor(seconds / 3600);
-                const minutes = Math.floor((seconds % 3600) / 60);
-                return `${hours}h ${minutes}m`;
-            };
-    
+            this.renderSummary();
+
+            if (STATE.projects.length === 0) {
+                DOM.projectList.innerHTML = '<div class="pc-empty">Projects collect your focus sessions, notes and goals.<br>Name one above to get started.</div>';
+                return;
+            }
+
             STATE.projects.forEach(project => {
-                const projectItem = document.createElement('div');
-                projectItem.className = `project-item ${project.id === STATE.currentProject ? 'selected' : ''}`;
-                projectItem.dataset.id = project.id;
-    
-                projectItem.innerHTML = `
-                    <div class="project-main-content">
-                        <div class="project-name editable" contenteditable="true">${project.name}</div>
-                        <div class="project-stats">
-                            <div class="project-stat">
-                                <span>🍅</span>
-                                <span class="editable" contenteditable="true">${project.pomodoros}</span>
-                                <span class="project-time">${formatProjectTime(project.workTime || 0)}</span>
-                            </div>
-                            <div class="project-stat">
-                                <span>☕</span>
-                                <span class="editable" contenteditable="true">${project.breaks}</span>
-                                <span class="project-time">${formatProjectTime(project.breakTime || 0)}</span>
-                            </div>
-                        </div>
-                        <div class="project-actions">
-                            <button class="project-action-btn" onclick="projectActions.setCurrentProject('${project.id}')">
-                                ${project.id === STATE.currentProject ? 'Untrack' : 'Track'}
-                            </button>
-                            <button class="project-action-btn" onclick="projectActions.deleteProject('${project.id}')">Delete</button>
-                        </div>
+                const isCurrent = project.id === STATE.currentProject;
+                const color = this.colorOf(project);
+                const week = this.weekOf(project.id);
+                const weekMax = Math.max(...week.map(d => d.seconds), 1);
+                const weekTotal = week.reduce((s, d) => s + d.seconds, 0);
+                const goal = project.goal || 0;
+                const pct = goal ? Math.min(100, Math.round((project.pomodoros || 0) / goal * 100)) : 0;
+                const armed = this.pendingDelete === project.id;
+
+                const card = document.createElement('div');
+                card.className = 'pcard' + (isCurrent ? ' tracking' : '') + (goal && pct >= 100 ? ' goal-met' : '');
+                card.style.setProperty('--pc', color);
+                card.dataset.id = project.id;
+                card.innerHTML = `
+                    <div class="pc-top">
+                        <button class="pc-dot" title="Change colour" aria-label="Change colour"></button>
+                        <div class="pc-name" contenteditable="true" spellcheck="false">${this.escape(project.name)}</div>
+                        <button class="pc-track">${isCurrent ? '<i></i>Tracking' : 'Track'}</button>
+                        <button class="pc-delete${armed ? ' armed' : ''}" title="Delete project">${armed ? 'Delete?' : '✕'}</button>
                     </div>
-                    <div class="project-notes-section">
-                        <button class="project-notes-toggle">Notes</button>
-                        <textarea class="project-notes" placeholder="Add notes about this project...">${project.notes || ''}</textarea>
+                    <div class="pc-stats">
+                        <span class="pc-stat" title="Focus sessions — click to correct"><b>🍅</b><span class="pc-num" contenteditable="true" data-field="pomodoros">${project.pomodoros || 0}</span></span>
+                        <span class="pc-stat" title="Total focus time"><b>⏱</b>${this.formatDuration(project.workTime || 0)}</span>
+                        <span class="pc-stat" title="Breaks — click to correct"><b>☕</b><span class="pc-num" contenteditable="true" data-field="breaks">${project.breaks || 0}</span><small>${this.formatDuration(project.breakTime || 0)}</small></span>
                     </div>
+                    <div class="pc-goal">
+                        ${goal
+                            ? `<div class="pc-bar"><span style="width:${pct}%"></span></div>
+                               <span class="pc-goal-label">${project.pomodoros || 0} / <span class="pc-num" contenteditable="true" data-field="goal">${goal}</span> 🍅 ${pct >= 100 ? '· goal reached ✨' : ''}</span>`
+                            : `<button class="pc-set-goal">＋ Set a 🍅 goal</button>`}
+                    </div>
+                    <div class="pc-week" title="Focus this week: ${this.formatDuration(weekTotal)}">
+                        ${week.map(d => `<span class="${d.today ? 'today' : ''}" title="${d.label}: ${this.formatDuration(d.seconds)}"><i style="height:${d.seconds ? Math.max(8, Math.round(d.seconds / weekMax * 100)) : 0}%"></i><em>${d.label.charAt(0)}</em></span>`).join('')}
+                    </div>
+                    <details class="pc-notes">
+                        <summary>Notes${project.notes ? ' <small>•</small>' : ''}</summary>
+                        <textarea placeholder="What's next, blockers, links…">${this.escape(project.notes || '')}</textarea>
+                    </details>
                 `;
-    
-                DOM.projectList.appendChild(projectItem);
-    
-                const notesToggle = projectItem.querySelector('.project-notes-toggle');
-                const notesTextarea = projectItem.querySelector('.project-notes');
-    
-                // Initialize notes as hidden
-                notesTextarea.style.display = 'none';
-    
-                notesToggle.addEventListener('click', () => {
-                    const isExpanded = notesTextarea.style.display === 'block';
-                    notesTextarea.style.display = isExpanded ? 'none' : 'block';
-                    notesToggle.classList.toggle('expanded');
-                });
-    
-                notesTextarea.addEventListener('blur', () => {
-                    project.notes = notesTextarea.value;
+                DOM.projectList.appendChild(card);
+                this.bindCard(card, project);
+            });
+        },
+
+        bindCard(card, project) {
+            card.querySelector('.pc-track').addEventListener('click', () => this.setCurrentProject(project.id));
+            card.querySelector('.pc-delete').addEventListener('click', () => this.deleteProject(project.id));
+            card.querySelector('.pc-dot').addEventListener('click', () => {
+                project.color = ((project.color || 0) + 1) % this.COLORS.length;
+                this.saveProjects();
+                this.renderProjects();
+            });
+
+            const name = card.querySelector('.pc-name');
+            name.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); name.blur(); } });
+            name.addEventListener('blur', () => {
+                const value = name.textContent.trim().slice(0, 80);
+                if (value && value !== project.name) {
+                    project.name = value;
                     this.saveProjects();
-                });
-    
-                // Automatically resize the textarea as the user types
-                notesTextarea.addEventListener('input', () => {
-                    notesTextarea.style.height = 'auto'; // Reset height to calculate the new height
-                    notesTextarea.style.height = `${notesTextarea.scrollHeight}px`; // Set height based on content
-                });
-    
-                const nameEditable = projectItem.querySelector('.project-name');
-                const pomodoroEditable = projectItem.querySelector('.project-stat:nth-child(1) .editable');
-                const breakEditable = projectItem.querySelector('.project-stat:nth-child(2) .editable');
-    
-                nameEditable.addEventListener('blur', () => {
-                    project.name = nameEditable.textContent;
+                    this.renderSummary();
+                } else if (!value) {
+                    name.textContent = project.name;
+                }
+            });
+
+            card.querySelectorAll('.pc-num').forEach(el => {
+                el.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); el.blur(); } });
+                el.addEventListener('blur', () => {
+                    const value = Math.max(0, parseInt(el.textContent, 10) || 0);
+                    project[el.dataset.field] = value;
                     this.saveProjects();
-                });
-    
-                pomodoroEditable.addEventListener('blur', () => {
-                    const value = parseInt(pomodoroEditable.textContent) || 0;
-                    project.pomodoros = value;
-                    this.saveProjects();
-                });
-    
-                breakEditable.addEventListener('blur', () => {
-                    const value = parseInt(breakEditable.textContent) || 0;
-                    project.breaks = value;
-                    this.saveProjects();
+                    this.renderProjects();
                 });
             });
+
+            const setGoal = card.querySelector('.pc-set-goal');
+            if (setGoal) setGoal.addEventListener('click', () => {
+                project.goal = Math.max(8, Math.ceil(((project.pomodoros || 0) + 1) / 4) * 4);
+                this.saveProjects();
+                this.renderProjects();
+                const goalEl = DOM.projectList.querySelector(`.pcard[data-id="${project.id}"] [data-field="goal"]`);
+                if (goalEl) { goalEl.focus(); document.getSelection().selectAllChildren(goalEl); }
+            });
+
+            const notes = card.querySelector('.pc-notes textarea');
+            const grow = () => { notes.style.height = 'auto'; notes.style.height = notes.scrollHeight + 'px'; };
+            card.querySelector('.pc-notes').addEventListener('toggle', grow);
+            notes.addEventListener('input', grow);
+            // Save as you type (debounced) so closing the tab mid-note loses nothing
+            let saveTimer;
+            const saveNotes = () => {
+                clearTimeout(saveTimer);
+                project.notes = notes.value;
+                this.saveProjects();
+            };
+            notes.addEventListener('input', () => { clearTimeout(saveTimer); saveTimer = setTimeout(saveNotes, 400); });
+            notes.addEventListener('blur', saveNotes);
         }
     };
-    
+
     // ========== Data Tracking Functions ==========
     const dataTracking = {
         init() {
@@ -2424,6 +2530,7 @@
             this.updateWeeklyData(projectId, workSeconds, breakSeconds, pomodoros);
             
             this.saveData();
+            projectActions.renderProjects();
         },
     
         updateWeeklyData(projectId, workSeconds = 0, breakSeconds = 0, pomodoros = 0) {
