@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pomodoro Timer</title>
+    <title>Flowmodoro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Space+Grotesk:wght@500;600&display=swap" rel="stylesheet">
     <style>
         /* === Base Styles === */
         :root {
@@ -65,46 +68,6 @@
             0% { transform: scale(1); }
             50% { transform: scale(1.05); }
             100% { transform: scale(1); }
-        }
-
-        .animal-side {
-            position: fixed;
-            top: 45%;
-            transform: translateY(-50%);
-            z-index: 1;
-            pointer-events: none;
-        }
-
-        .animal-left { 
-            left: 10px;
-            animation: floatLeft 15s ease-in-out infinite alternate;
-        }
-
-        .animal-right { 
-            right: 10px;
-            animation: floatRight 15s ease-in-out infinite alternate;
-        }
-
-        .animal-gif {
-            width: 160px;
-            height: auto;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
-            animation: float 4s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-15px) rotate(3deg); }
-        }
-
-        @keyframes floatLeft {
-            0% { transform: translateY(-50%) translateX(0); }
-            100% { transform: translateY(-50%) translateX(20px); }
-        }
-
-        @keyframes floatRight {
-            0% { transform: translateY(-50%) translateX(0); }
-            100% { transform: translateY(-50%) translateX(-20px); }
         }
 
         .container {
@@ -1147,8 +1110,15 @@
             font-weight: bold;
         }
     </style>
+    <link rel="stylesheet" href="aurora.css">
+    <script>
+        // Apply the saved skin before first paint
+        try { const sk = localStorage.getItem('flowmodoroSkin'); if (sk) document.documentElement.dataset.skin = sk; } catch (e) {}
+    </script>
 </head>
 <body>
+    <div class="aurora" aria-hidden="true"><span></span><span></span><span></span></div>
+
     <!-- Dropdown Menu -->
     <div class="dropdown">
         <button class="dropdown-btn" id="menuBtn">☰ Menu</button>
@@ -1158,6 +1128,7 @@
             <div class="item" data-panel="sounds">🎵 Background Sounds</div>
             <div class="item" data-panel="rewards">🏆 Rewards</div>
             <div class="item" data-panel="dataTracking">📈 Project Data</div>
+            <div class="item" data-panel="skins">🎨 Skins</div>
             <div class="item" data-panel="donate">☕ Support</div>
             <!-- Add Delete All Data button -->
             <div class="item" id="deleteAllDataBtn" style="color: #ff4444; border-top: 1px solid #f0f0f0;">🗑️ Delete All Data</div>
@@ -1697,6 +1668,20 @@
         </div>
     </div>
 
+    <!-- Skins Panel -->
+    <div class="panel skins-panel" id="skinsPanel">
+        <button class="close-btn" id="closeSkins">×</button>
+        <h3>Skins</h3>
+        <p>Pick a look. It's saved in this browser.</p>
+        <div class="skin-grid">
+            <button class="skin-option" data-skin="aurora"><span class="swatch"></span><span>Aurora<small>Rose focus · emerald break</small></span></button>
+            <button class="skin-option" data-skin="crimson"><span class="swatch"></span><span>Crimson<small>Red all the way down</small></span></button>
+            <button class="skin-option" data-skin="nebula"><span class="swatch"></span><span>Nebula<small>Violet · cyan</small></span></button>
+            <button class="skin-option" data-skin="glacier"><span class="swatch"></span><span>Glacier<small>Ice blue · mint</small></span></button>
+            <button class="skin-option" data-skin="solar"><span class="swatch"></span><span>Solar<small>Amber · gold</small></span></button>
+        </div>
+    </div>
+
     <!-- Donate Panel -->
     <div class="panel donate-panel" id="donatePanel">
         <button class="close-btn" id="closeDonate">×</button>
@@ -1789,12 +1774,10 @@
     <audio id="lofi33Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/warm_blanket_thoughts.wav?raw=true"></audio>
     <audio id="applauseSound" src="assets/sounds/applause.mp3"></audio>
 
-    <div class="animal-side animal-left">
-        <img class="animal-gif" id="leftAnimalGif" src="assets/working-dog-animation.gif" alt="Working animal">
-    </div>
 
     <div class="container">
-        <h1>Pomodoro Timer</h1>
+        <h1>Flowmodoro</h1>
+        <p class="tagline">Deep work, one ring at a time.</p>
         
         <div class="header-buttons">
             <button class="mode-btn" id="setWorkMode">Set Work Mode</button>
@@ -1804,7 +1787,14 @@
         <div class="mode-indicator" id="modeIndicator">Work Time</div>
         
         <div class="timer-container">
+            <div class="orrery" aria-hidden="true">
+                <i class="orbit o1"><b></b></i>
+                <i class="orbit o2"><b><span class="moon"></span></b></i>
+                <i class="orbit o3"><b class="ringed"></b></i>
+                <i class="orbit o4"><b></b></i>
+            </div>
             <div class="timer-progress" id="timerProgress"></div>
+            <div class="ring-tip" aria-hidden="true"></div>
             <div class="timer-circle"></div>
             <div class="timer-display" id="timer" contenteditable="true">25:00</div>
         </div>
@@ -1820,6 +1810,7 @@
             <button class="quick-btn" id="break5">Break (5:00)</button>
             <button class="quick-btn" id="break30">Long Break (30:00)</button>
         </div>
+        <p class="kbd-hint"><kbd>Space</kbd> start / pause</p>
         
         <div class="tracking">
             <h2>Tracking</h2>
@@ -1848,9 +1839,6 @@
         </div>
     </div>
 
-    <div class="animal-side animal-right">
-        <img class="animal-gif" id="rightAnimalGif" src="assets/working-dog-animation.gif" alt="Working animal">
-    </div>
 
     <script>
     // ========== DOM Elements ==========
@@ -1872,8 +1860,6 @@
         projectInput: document.getElementById('projectInput'),
         addProjectBtn: document.getElementById('addProjectBtn'),
         projectList: document.getElementById('projectList'),
-        leftAnimalGif: document.getElementById('leftAnimalGif'),
-        rightAnimalGif: document.getElementById('rightAnimalGif'),
         body: document.body,
         alarmSound: document.getElementById('alarmSound'),
         applauseSound: document.getElementById('applauseSound'),
@@ -1921,7 +1907,6 @@
         sessionStartTime: null,
         lastTrackingUpdate: 0,
         completedSessions: 0,
-        breakGif: 'assets/break-animation.gif',
         projects: [],
         currentProject: null,
         // Rewards system
@@ -1988,14 +1973,6 @@
             
             DOM.body.classList.remove('work-mode', 'break-mode');
             DOM.body.classList.add(STATE.isWorkMode ? 'work-mode' : 'break-mode');
-            
-            if (STATE.isWorkMode) {
-                DOM.leftAnimalGif.src = 'assets/working-dog-animation.gif';
-                DOM.rightAnimalGif.src = 'assets/working-dog-animation.gif';
-            } else {
-                DOM.leftAnimalGif.src = STATE.breakGif;
-                DOM.rightAnimalGif.src = STATE.breakGif;
-            }
             
             STATE.timer = setInterval(() => {
                 // FIXED: Check if timer reached 0 and handle completion
@@ -2069,14 +2046,6 @@
                     
                     DOM.body.classList.remove('work-mode', 'break-mode');
                     DOM.body.classList.add(STATE.isWorkMode ? 'work-mode' : 'break-mode');
-                    
-                    if (STATE.isWorkMode) {
-                        DOM.leftAnimalGif.src = 'assets/working-dog-animation.gif';
-                        DOM.rightAnimalGif.src = 'assets/working-dog-animation.gif';
-                    } else {
-                        DOM.leftAnimalGif.src = STATE.breakGif;
-                        DOM.rightAnimalGif.src = STATE.breakGif;
-                    }
                     
                     // Set next timer duration
                     if (STATE.isWorkMode) {
@@ -2259,14 +2228,6 @@
             
             DOM.body.classList.remove('work-mode', 'break-mode');
             DOM.body.classList.add(STATE.isWorkMode ? 'work-mode' : 'break-mode');
-            
-            if (STATE.isWorkMode) {
-                DOM.leftAnimalGif.src = 'assets/working-dog-animation.gif';
-                DOM.rightAnimalGif.src = 'assets/working-dog-animation.gif';
-            } else {
-                DOM.leftAnimalGif.src = STATE.breakGif;
-                DOM.rightAnimalGif.src = STATE.breakGif;
-            }
         },
     
         setMode(workMode) {
@@ -2275,14 +2236,6 @@
             
             DOM.body.classList.remove('work-mode', 'break-mode');
             DOM.body.classList.add(STATE.isWorkMode ? 'work-mode' : 'break-mode');
-            
-            if (STATE.isWorkMode) {
-                DOM.leftAnimalGif.src = 'assets/working-dog-animation.gif';
-                DOM.rightAnimalGif.src = 'assets/working-dog-animation.gif';
-            } else {
-                DOM.leftAnimalGif.src = STATE.breakGif;
-                DOM.rightAnimalGif.src = STATE.breakGif;
-            }
         },
     
         updateModeIndicator() {
@@ -2980,6 +2933,7 @@
                 sounds: document.getElementById('soundsPanel'),
                 rewards: document.getElementById('rewardsPanel'),
                 dataTracking: document.getElementById('dataTrackingPanel'),
+                skins: document.getElementById('skinsPanel'),
                 donate: document.getElementById('donatePanel')
             };
             
@@ -2990,6 +2944,7 @@
                 sounds: document.getElementById('closeSounds'),
                 rewards: document.getElementById('closeRewards'),
                 dataTracking: document.getElementById('closeDataTracking'),
+                skins: document.getElementById('closeSkins'),
                 donate: document.getElementById('closeDonate')
             };
             
@@ -3822,6 +3777,71 @@
     }
     
     init();
+    </script>
+
+    <!-- Aurora theme helpers: running state, live tab title, Space shortcut, now-playing sound -->
+    <script>
+    (() => {
+        const body = document.body;
+        const timerEl = document.getElementById('timer');
+        const startBtn = document.getElementById('start');
+        const pauseBtn = document.getElementById('pause');
+        const soundToggle = document.getElementById('soundToggle');
+        const options = document.querySelectorAll('.sound-option');
+
+        const timerBox = document.querySelector('.timer-container');
+        const progressEl = document.getElementById('timerProgress');
+
+        const sync = () => {
+            const running = typeof STATE !== 'undefined' && STATE.isRunning;
+            // Mirror the JS-painted conic percentage so the comet can ride the ring head
+            const m = /(-?[\d.]+)%/.exec(progressEl.style.background || '');
+            const p = m ? Math.min(100, Math.max(0, parseFloat(m[1]))) : 0;
+            timerBox.style.setProperty('--p', p);
+            timerBox.classList.toggle('has-progress', p > 0 && p < 100);
+            body.classList.toggle('is-running', !!running);
+            const mode = body.classList.contains('break-mode') ? 'Break' : 'Focus';
+            document.title = running ? `${timerEl.textContent.trim()} · ${mode} — Flowmodoro` : 'Flowmodoro';
+        };
+        setInterval(sync, 250);
+        sync();
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code !== 'Space' || e.repeat) return;
+            const t = e.target;
+            if (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(t.tagName)) return;
+            e.preventDefault();
+            const btn = getComputedStyle(pauseBtn).display !== 'none' ? pauseBtn : startBtn;
+            btn.click();
+        });
+
+        const markPaused = () => {
+            const playing = document.querySelector('.sound-option.playing');
+            if (playing) playing.classList.toggle('paused', soundToggle.textContent.trim() !== '⏸️');
+        };
+        options.forEach(opt => opt.addEventListener('click', () => {
+            options.forEach(o => o.classList.remove('playing', 'paused'));
+            opt.classList.add('playing');
+            markPaused();
+        }));
+        soundToggle.addEventListener('click', () => {
+            if (!document.querySelector('.sound-option.playing') && options[0]) options[0].classList.add('playing');
+            markPaused();
+        });
+
+        // Skins
+        const skinButtons = document.querySelectorAll('.skin-option');
+        const applySkin = (name) => {
+            document.documentElement.dataset.skin = name;
+            skinButtons.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.skin === name)));
+            try { localStorage.setItem('flowmodoroSkin', name); } catch (e) {}
+        };
+        skinButtons.forEach(b => b.addEventListener('click', (e) => {
+            e.stopPropagation();
+            applySkin(b.dataset.skin);
+        }));
+        applySkin(document.documentElement.dataset.skin || 'aurora');
+    })();
     </script>
 </body>
 </html>
