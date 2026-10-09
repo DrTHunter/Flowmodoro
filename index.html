@@ -1112,12 +1112,28 @@
     </style>
     <link rel="stylesheet" href="aurora.css">
     <script>
-        // Apply the saved skin before first paint
-        try { const sk = localStorage.getItem('flowmodoroSkin'); if (sk) document.documentElement.dataset.skin = sk; } catch (e) {}
+        // Before first paint: embedded check (inside AudioOasis) + saved skin
+        (function () {
+            const root = document.documentElement, qs = new URLSearchParams(location.search);
+            let embedded = qs.has('embed');
+            try { embedded = embedded || window.self !== window.top; } catch (e) { embedded = true; }
+            if (embedded) root.classList.add('embedded');
+            let sk = qs.get('skin');
+            if (!sk) { try { sk = localStorage.getItem('flowmodoroSkin'); } catch (e) {} }
+            if (sk && /^(aurora|crimson|nebula|glacier|solar)$/.test(sk)) root.dataset.skin = sk;
+        })();
     </script>
 </head>
 <body>
     <div class="aurora" aria-hidden="true"><span></span><span></span><span></span></div>
+
+    <!-- Focus | Music switch: AudioOasis opens in place, the timer keeps running -->
+    <nav class="app-switch" aria-label="Switch app">
+        <a href="./" data-view="focus" aria-current="page">⏱ <span>Focus</span></a>
+        <a href="https://audiooasis.app/" data-view="music">🎧 <span>Music</span></a>
+    </nav>
+    <button class="timer-chip" id="timerChip" title="Start / pause the timer"><i></i><span id="timerChipText">25:00</span></button>
+    <div class="music-view" id="musicView" aria-hidden="true"></div>
 
     <!-- Dropdown Menu -->
     <div class="dropdown">
@@ -1191,11 +1207,6 @@
         <button class="close-btn" id="closeSounds">×</button>
         <h3>Background Sounds</h3>
         
-        <div class="sounds-tabs">
-            <button class="sounds-tab-btn active" data-tab="background">Background</button>
-            <button class="sounds-tab-btn" data-tab="lofi">Lofi</button>
-        </div>
-        
         <div class="sounds-tab-content active" id="background-tab">
             <div class="sound-option" data-sound="meditationBowls">🪘 Meditation Bowls</div>
             <div class="sound-option" data-sound="rain">🌧️ Rain</div>
@@ -1218,41 +1229,6 @@
             <div class="sound-option" data-sound="rainroof">☔ Rain on Roof</div>
         </div>
         
-        <div class="sounds-tab-content" id="lofi-tab">
-            <div class="sound-option" data-sound="lofi1">🎵 1999 Bedroom Beats</div>
-            <div class="sound-option" data-sound="lofi2">🎵 Cafe con Leche Beats</div>
-            <div class="sound-option" data-sound="lofi3">🎵 Cafe Window Rain</div>
-            <div class="sound-option" data-sound="lofi4">🎵 Cat Cafe Boogie</div>
-            <div class="sound-option" data-sound="lofi5">🎵 Diner Booth Dreams</div>
-            <div class="sound-option" data-sound="lofi6">🎵 Fading Streetlights</div>
-            <div class="sound-option" data-sound="lofi7">🎵 Falling Through Hourglasses</div>
-            <div class="sound-option" data-sound="lofi8">🎵 Fingers on Dusty Keys</div>
-            <div class="sound-option" data-sound="lofi9">🎵 Five A.M. Jazz Club</div>
-            <div class="sound-option" data-sound="lofi10">🎵 Fretboard Dreams</div>
-            <div class="sound-option" data-sound="lofi11">🎵 Half-Speed Heartbeats</div>
-            <div class="sound-option" data-sound="lofi12">🎵 Honey Drip Melodies</div>
-            <div class="sound-option" data-sound="lofi13">🎵 Ice Melting in Slow Motion</div>
-            <div class="sound-option" data-sound="lofi14">🎵 Koi Pond Calculus</div>
-            <div class="sound-option" data-sound="lofi15">🎵 Like Water in Dreams</div>
-            <div class="sound-option" data-sound="lofi16">🎵 Low-Key Hustle</div>
-            <div class="sound-option" data-sound="lofi17">🎵 Margin Notes at 2 AM</div>
-            <div class="sound-option" data-sound="lofi18">🎵 Neon Bicycle</div>
-            <div class="sound-option" data-sound="lofi19">🎵 Nylon String Sunset</div>
-            <div class="sound-option" data-sound="lofi20">🎵 Pencil Marks on Sheet Music</div>
-            <div class="sound-option" data-sound="lofi21">🎵 Pixelated Picnic</div>
-            <div class="sound-option" data-sound="lofi22">🎵 Popsicle Summer</div>
-            <div class="sound-option" data-sound="lofi23">🎵 Smoke Rings in B-Flat</div>
-            <div class="sound-option" data-sound="lofi24">🎵 Sneaker Scuff Symphony</div>
-            <div class="sound-option" data-sound="lofi25">🎵 Subway Graffiti Heartbeat</div>
-            <div class="sound-option" data-sound="lofi26">🎵 Sunburn Serenade</div>
-            <div class="sound-option" data-sound="lofi27">🎵 Taxi Window Views</div>
-            <div class="sound-option" data-sound="lofi28">🎵 The Art of Slowing Down</div>
-            <div class="sound-option" data-sound="lofi29">🎵 The Lake at 4 AM</div>
-            <div class="sound-option" data-sound="lofi30">🎵 The Last Candle Burns</div>
-            <div class="sound-option" data-sound="lofi31">🎵 Tickets to Nowhere</div>
-            <div class="sound-option" data-sound="lofi32">🎵 Vinyl Hustle</div>
-            <div class="sound-option" data-sound="lofi33">🎵 Warm Blanket Thoughts</div>
-        </div>
         
         <div class="sound-controls">
             <button id="soundToggle" class="sound-toggle-btn">▶️</button>
@@ -1718,60 +1694,26 @@
     </div>
 
     <!-- Audio Elements (hidden) -->
-    <audio id="alarmSound" src="https://github.com/DrTHunter/Flowmodoro/raw/Production-Ready/assets/sounds/alarm.wav" preload="auto"></audio>
-    <audio id="meditationBowlsSound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/backgroundambiance/meditation-bowls.wav?raw=true"></audio>
-    <audio id="rainSound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/backgroundambiance/rain.wav?raw=true"></audio>
-    <audio id="forestSound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/backgroundambiance/forest.wav?raw=true"></audio>
-    <audio id="wavesSound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/backgroundambiance/wave.wav?raw=true"></audio>
-    <audio id="coffeeSound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/backgroundambiance/coffee-shop.wav?raw=true"></audio>
-    <audio id="whitenoiseSound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/backgroundambiance/white-noise.wav?raw=true"></audio>
-    <audio id="pinknoiseSound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/backgroundambiance/pink-noise.wav?raw=true"></audio>
-    <audio id="brownnoiseSound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/backgroundambiance/brown-noise.wav?raw=true"></audio>
-    <audio id="fanSound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/backgroundambiance/fan.wav?raw=true"></audio>
-    <audio id="thunderSound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/backgroundambiance/thunderstorm.wav?raw=true"></audio>
-    <audio id="riverSound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/backgroundambiance/river.wav?raw=true"></audio>
-    <audio id="birdsSound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/backgroundambiance/birds.wav?raw=true"></audio>
-    <audio id="fireplaceSound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/backgroundambiance/fireplace.wav?raw=true"></audio>
-    <audio id="citySound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/backgroundambiance/city.wav?raw=true"></audio>
-    <audio id="windSound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/backgroundambiance/wind.wav?raw=true"></audio>
-    <audio id="cricketsSound" loop src="https://github.com/DrTHunter/Flowmodoro/raw/Production-Ready/assets/sounds/Crickets.wav?raw=true"></audio>
-    <audio id="waterfallSound" loop src="https://github.com/DrTHunter/Flowmodoro/raw/Production-Ready/assets/sounds/waterfall.wav?raw=true"></audio>
-    <audio id="librarySound" loop src="https://github.com/DrTHunter/Flowmodoro/raw/Production-Ready/assets/sounds/library.wav?raw=true"></audio>
-    <audio id="rainroofSound" loop src="https://github.com/DrTHunter/Flowmodoro/raw/Production-Ready/assets/sounds/rain-roof.wav?raw=true"></audio>
-    <!-- Lofi audio elements -->
-    <audio id="lofi1Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/1999_bedroom_beats.wav?raw=true"></audio>
-    <audio id="lofi2Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/cafe_con_leche_beats.wav?raw=true"></audio>
-    <audio id="lofi3Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/cafe_window_rain.wav?raw=true"></audio>
-    <audio id="lofi4Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/cat_cafe_boogie.wav?raw=true"></audio>
-    <audio id="lofi5Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/diner_booth_dreams.WAV?raw=true"></audio>
-    <audio id="lofi6Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/fading_streetlights.wav?raw=true"></audio>
-    <audio id="lofi7Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/falling_through_hourglasses.wav?raw=true"></audio>
-    <audio id="lofi8Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/fingers_on_dusty_keys.wav?raw=true"></audio>
-    <audio id="lofi9Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/five_am_jazz_club.wav?raw=true"></audio>
-    <audio id="lofi10Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/fretboard_dreams.wav?raw=true"></audio>
-    <audio id="lofi11Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/half_speed_heartbeats.wav?raw=true"></audio>
-    <audio id="lofi12Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/honey_drip_melodies.wav?raw=true"></audio>
-    <audio id="lofi13Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/ice_melting_in_slow_motion.wav?raw=true"></audio>
-    <audio id="lofi14Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/koi_pond_calculus.wav?raw=true"></audio>
-    <audio id="lofi15Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/like_water_in_dreams.wav?raw=true"></audio>
-    <audio id="lofi16Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/low_key_hustle.wav?raw=true"></audio>
-    <audio id="lofi17Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/margin_notes_at_2_am.wav?raw=true"></audio>
-    <audio id="lofi18Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/neon_bicycle.wav?raw=true"></audio>
-    <audio id="lofi19Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/nylon_string_sunset.wav?raw=true"></audio>
-    <audio id="lofi20Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/pencil_marks_on_sheet_music.wav?raw=true"></audio>
-    <audio id="lofi21Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/pixelated_picnic.wav?raw=true"></audio>
-    <audio id="lofi22Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/popsicle_summer.wav?raw=true"></audio>
-    <audio id="lofi23Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/smoke_rings_in_b_flat.wav?raw=true"></audio>
-    <audio id="lofi24Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/sneaker_scuff_symphony.wav?raw=true"></audio>
-    <audio id="lofi25Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/subway_graffiti_heartbeat.wav?raw=true"></audio>
-    <audio id="lofi26Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/sunburn_serenade.wav?raw=true"></audio>
-    <audio id="lofi27Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/taxi_window_views.wav?raw=true"></audio>
-    <audio id="lofi28Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/the_art_of_slowing_down.wav?raw=true"></audio>
-    <audio id="lofi29Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/the_lake_at_4_am.wav?raw=true"></audio>
-    <audio id="lofi30Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/the_last_candle_burns.wav?raw=true"></audio>
-    <audio id="lofi31Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/tickets_to_nowhere.wav?raw=true"></audio>
-    <audio id="lofi32Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/vinyl_hustle.wav?raw=true"></audio>
-    <audio id="lofi33Sound" loop src="https://media.githubusercontent.com/media/DrTHunter/AudioOasis/refs/heads/main/tracks/lofi/warm_blanket_thoughts.wav?raw=true"></audio>
+    <audio id="alarmSound" src="assets/sounds/alarm.wav" preload="auto"></audio>
+    <audio id="meditationBowlsSound" loop src="assets/sounds/meditation-bowls.mp3"></audio>
+    <audio id="rainSound" loop src="assets/sounds/rain.wav"></audio>
+    <audio id="forestSound" loop src="assets/sounds/forest.mp3"></audio>
+    <audio id="wavesSound" loop src="assets/sounds/wave.mp3"></audio>
+    <audio id="coffeeSound" loop src="assets/sounds/coffee-shop.wav"></audio>
+    <audio id="whitenoiseSound" loop src="assets/sounds/white-noise.wav"></audio>
+    <audio id="pinknoiseSound" loop src="assets/sounds/pink-noise.wav"></audio>
+    <audio id="brownnoiseSound" loop src="assets/sounds/brown-noise.mp3"></audio>
+    <audio id="fanSound" loop src="assets/sounds/fan.mp3"></audio>
+    <audio id="thunderSound" loop src="assets/sounds/thunderstorm.mp3"></audio>
+    <audio id="riverSound" loop src="assets/sounds/river.wav"></audio>
+    <audio id="birdsSound" loop src="assets/sounds/birds.wav"></audio>
+    <audio id="fireplaceSound" loop src="assets/sounds/fireplace.mp3"></audio>
+    <audio id="citySound" loop src="assets/sounds/city.mp3"></audio>
+    <audio id="windSound" loop src="assets/sounds/wind.wav"></audio>
+    <audio id="cricketsSound" loop src="assets/sounds/Crickets.wav"></audio>
+    <audio id="waterfallSound" loop src="assets/sounds/waterfall.wav"></audio>
+    <audio id="librarySound" loop src="assets/sounds/library.wav"></audio>
+    <audio id="rainroofSound" loop src="assets/sounds/rain-roof.wav"></audio>
     <audio id="applauseSound" src="assets/sounds/applause.mp3"></audio>
 
 
@@ -3729,11 +3671,22 @@
         });
     
         // Handle timer display edits
+        // Accepts "5" (minutes), "5:30" (m:s) or "1:05:00" (h:m:s); anything unreadable
+        // keeps the previous time instead of turning into NaN
         DOM.timer.addEventListener('blur', () => {
-            const timeString = DOM.timer.textContent;
-            const [minutes, seconds] = timeString.split(':').map(Number);
-            STATE.totalSeconds = minutes * 60 + seconds;
-            STATE.initialSeconds = STATE.totalSeconds;
+            const clean = DOM.timer.textContent.replace(/[^\d:]/g, '');
+            const parts = clean.split(':').map(p => (p === '' ? 0 : Number(p)));
+            let total = NaN;
+            if (/\d/.test(clean) && parts.length <= 3) {
+                if (parts.length === 1) total = parts[0] * 60;
+                else if (parts.length === 2) total = parts[0] * 60 + parts[1];
+                else total = parts[0] * 3600 + parts[1] * 60 + parts[2];
+            }
+            if (Number.isFinite(total) && total > 0) {
+                STATE.totalSeconds = Math.min(total, 999 * 60 + 59);
+                STATE.initialSeconds = STATE.totalSeconds;
+            }
+            timerActions.updateDisplay();
         });
         
         DOM.timer.addEventListener('keypress', (e) => {
@@ -3835,12 +3788,80 @@
             document.documentElement.dataset.skin = name;
             skinButtons.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.skin === name)));
             try { localStorage.setItem('flowmodoroSkin', name); } catch (e) {}
+            document.dispatchEvent(new CustomEvent('flowmodoro:skin', { detail: name }));
         };
         skinButtons.forEach(b => b.addEventListener('click', (e) => {
             e.stopPropagation();
             applySkin(b.dataset.skin);
         }));
         applySkin(document.documentElement.dataset.skin || 'aurora');
+    })();
+    </script>
+    <script>
+    // ── Focus | Music: AudioOasis in place, kept alive once opened ──
+    (function () {
+        const local = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+        const AUDIOOASIS_URL = local ? 'http://localhost:8765/' : 'https://audiooasis.app/';
+        const PEER_ORIGINS = ['https://audiooasis.app', 'https://drthunter.github.io', 'http://localhost:8765', 'http://localhost:5517'];
+        const SKINS = ['aurora', 'crimson', 'nebula', 'glacier', 'solar'];
+        const root = document.documentElement;
+        const embedded = root.classList.contains('embedded');
+        const musicView = document.getElementById('musicView');
+        const links = document.querySelectorAll('.app-switch a');
+        let frame = null;
+        let fromPeer = false;
+
+        const currentSkin = () => root.dataset.skin || 'aurora';
+        const peerWindow = () => embedded ? window.parent : (frame && frame.contentWindow);
+        function sendSkin(skin) {
+            const target = peerWindow();
+            if (target && SKINS.includes(skin)) target.postMessage({ app: 'flowmodoro', type: 'skin', skin }, '*'); // skin names aren't secret
+        }
+        document.addEventListener('flowmodoro:skin', e => { if (!fromPeer) sendSkin(e.detail); });
+        window.addEventListener('message', e => {
+            if (!PEER_ORIGINS.includes(e.origin) || e.source !== peerWindow()) return;
+            const d = e.data;
+            if (d && d.app === 'audiooasis' && d.type === 'skin' && SKINS.includes(d.skin) && d.skin !== currentSkin()) {
+                const btn = document.querySelector('.skin-option[data-skin="' + d.skin + '"]');
+                fromPeer = true;
+                try { if (btn) btn.click(); } finally { fromPeer = false; }
+            }
+        });
+        if (embedded) { sendSkin(currentSkin()); return; }
+
+        function setView(view, { push = true } = {}) {
+            const music = view === 'music';
+            if (music && !frame) {
+                frame = document.createElement('iframe');
+                frame.title = 'AudioOasis music player';
+                frame.allow = 'autoplay; fullscreen';
+                frame.src = AUDIOOASIS_URL + '?embed=1&skin=' + currentSkin();
+                frame.addEventListener('load', () => sendSkin(currentSkin()));
+                musicView.appendChild(frame);
+            }
+            document.body.classList.toggle('music-active', music);
+            musicView.setAttribute('aria-hidden', String(!music));
+            links.forEach(a => a.dataset.view === view ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'));
+            if (push) history.replaceState(null, '', music ? '#music' : location.pathname + location.search);
+            if (music) frame.focus();
+        }
+        links.forEach(a => a.addEventListener('click', e => {
+            if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; // let "open in new tab" work
+            e.preventDefault();
+            setView(a.dataset.view);
+        }));
+        if (location.hash === '#music') setView('music', { push: false });
+
+        // Timer chip keeps the countdown in sight (and clickable) while music covers it
+        const timerEl = document.getElementById('timer');
+        const chipText = document.getElementById('timerChipText');
+        const syncChip = () => { chipText.textContent = timerEl.textContent.trim(); };
+        new MutationObserver(syncChip).observe(timerEl, { childList: true, characterData: true, subtree: true });
+        syncChip();
+        document.getElementById('timerChip').addEventListener('click', () => {
+            const running = document.body.classList.contains('is-running');
+            document.getElementById(running ? 'pause' : 'start').click();
+        });
     })();
     </script>
 </body>

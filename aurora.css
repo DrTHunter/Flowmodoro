@@ -268,6 +268,7 @@ body.is-running .mode-indicator::before { animation: blink 1.6s ease-in-out infi
     opacity: .55;
     transition: opacity .8s;
     z-index: 0;
+    pointer-events: none; /* the halo overhangs the Start button */
 }
 body.is-running .timer-container::before { animation: breathe 5s ease-in-out infinite; }
 @keyframes breathe { 0%,100% { opacity: .45; transform: scale(.96); } 50% { opacity: .85; transform: scale(1.04); } }
@@ -947,3 +948,96 @@ html[data-skin="solar"] {
 .skin-option[data-skin="nebula"]  { --sw-a: #c084fc; --sw-b: #67e8f9; --sw-bg: #120c33; }
 .skin-option[data-skin="glacier"] { --sw-a: #38bdf8; --sw-b: #5eead4; --sw-bg: #0a1a26; }
 .skin-option[data-skin="solar"]   { --sw-a: #f59e0b; --sw-b: #fde68a; --sw-bg: #1f1606; }
+
+/* ==========================================================================
+   Focus | Music switch — AudioOasis opens in place, the timer keeps running
+   ========================================================================== */
+.app-switch {
+    position: fixed;
+    top: 18px; left: 18px;
+    z-index: 1000;
+    display: inline-flex;
+    gap: 4px;
+    padding: 4px;
+    background: rgba(20,18,32,.7);
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
+.app-switch a {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    color: var(--muted);
+    font-family: var(--font-ui);
+    font-weight: 600;
+    font-size: .88em;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background .25s, color .25s, border-color .25s;
+}
+.app-switch a:hover { color: var(--text); background: var(--surface-2); }
+.app-switch a[aria-current="page"] {
+    color: #fff;
+    background: color-mix(in srgb, var(--accent) 18%, transparent);
+    border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+.music-view {
+    display: none;
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    top: 74px;
+    z-index: 900;
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+}
+.music-view iframe { display: block; width: 100%; height: 100%; border: 0; }
+body.music-active { overflow: hidden; }
+/* Timer keeps running underneath; just keep the card from peeking through the top strip */
+body.music-active .container { visibility: hidden; }
+body.music-active .music-view { display: block; animation: pop .25s var(--ease); }
+
+/* Live countdown up top while music is open */
+.timer-chip {
+    display: none;
+    position: fixed;
+    top: 18px; left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 18px;
+    font-family: var(--font-num);
+    font-size: 1.05em;
+    font-weight: 600;
+    color: #fff;
+    background: rgba(20,18,32,.7);
+    border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+    box-shadow: 0 0 24px -8px var(--accent);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
+.timer-chip:hover { transform: translateX(-50%) translateY(-1px); }
+.timer-chip i {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent);
+}
+body.is-running .timer-chip i { animation: blink 1.6s ease-in-out infinite; }
+body.music-active .timer-chip { display: inline-flex; }
+
+/* Embedded inside AudioOasis: no switch (no recursion) */
+html.embedded .app-switch,
+html.embedded .timer-chip { display: none !important; }
+
+@media (max-width: 520px) {
+    .app-switch a span { display: none; }
+    .app-switch a { padding: 7px 11px; }
+    .timer-chip { padding: 7px 12px; font-size: .95em; }
+}
