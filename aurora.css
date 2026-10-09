@@ -1273,3 +1273,42 @@ body.is-running .pcard.tracking .pc-track i { animation: blink 1.6s ease-in-out 
     .projects-head { flex-direction: column; align-items: flex-start; gap: 4px; }
     .projects-summary { text-align: left; }
 }
+
+/* ---------- About footer (inside the card) ---------- */
+.site-footer {
+    margin-top: 28px;
+    padding-top: 22px;
+    border-top: 1px solid var(--border);
+    color: var(--faint);
+    font-size: .82em;
+    line-height: 1.6;
+    text-align: center;
+}
+.site-footer p { margin: 0 0 8px; }
+.site-footer strong { color: var(--muted); font-weight: 600; }
+.site-footer a { color: var(--muted); text-decoration: none; border-bottom: 1px solid var(--border-strong); }
+.site-footer a:hover { color: var(--text); border-color: var(--accent); }
+
+/* ---------- Compact top bar: text labels fold away while scrolled ---------- */
+.app-switch a { gap: 0; }
+.app-switch a span,
+.dropdown-btn .btn-label {
+    display: inline-block;
+    max-width: 5em;
+    margin-left: 6px;
+    overflow: hidden;
+    vertical-align: bottom;
+    white-space: nowrap;
+    opacity: 1;
+    transition: max-width .35s var(--ease), margin .35s var(--ease), opacity .2s;
+}
+html.scrolled .app-switch a span,
+html.scrolled .dropdown-btn .btn-label {
+    max-width: 0;
+    margin-left: 0;
+    opacity: 0;
+}
+html.scrolled .app-switch a { padding: 7px 11px; }
+html.scrolled .dropdown-btn { padding: 10px 14px; }
+.app-switch a, .dropdown-btn { transition: padding .35s var(--ease), background .25s, color .25s, border-color .25s, box-shadow .25s; }
+@media (max-width: 520px) { .app-switch a span { display: none; } }

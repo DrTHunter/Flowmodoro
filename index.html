@@ -3,7 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flowmodoro</title>
+    <title>Flowmodoro: Free Pomodoro Timer with Focus Sounds & Project Tracking</title>
+    <meta name="description" content="Flowmodoro is a free online Pomodoro timer with ambient focus sounds, project time tracking, rewards and five themes. No sign-up, runs in your browser.">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <link rel="canonical" href="https://drthunter.github.io/Flowmodoro/">
+    <meta name="author" content="DrTHunter">
+    <meta name="theme-color" content="#07060d">
+    <meta name="color-scheme" content="dark">
+
+    <!-- Icons & install -->
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="assets/icon-192.png" type="image/png" sizes="192x192">
+    <link rel="apple-touch-icon" href="assets/icon-180.png">
+    <link rel="manifest" href="manifest.webmanifest">
+
+    <!-- Social previews -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Flowmodoro">
+    <meta property="og:title" content="Flowmodoro: Deep work, one ring at a time">
+    <meta property="og:description" content="Flowmodoro is a free online Pomodoro timer with ambient focus sounds, project time tracking, rewards and five themes. No sign-up, runs in your browser.">
+    <meta property="og:url" content="https://drthunter.github.io/Flowmodoro/">
+    <meta property="og:image" content="https://drthunter.github.io/Flowmodoro/assets/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="The Flowmodoro Pomodoro timer mid-session: a glowing progress ring at 18:42 on a dark aurora background">
+    <meta property="og:locale" content="en_US">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Flowmodoro: Deep work, one ring at a time">
+    <meta name="twitter:description" content="Flowmodoro is a free online Pomodoro timer with ambient focus sounds, project time tracking, rewards and five themes. No sign-up, runs in your browser.">
+    <meta name="twitter:image" content="https://drthunter.github.io/Flowmodoro/assets/og-image.png">
+    <meta name="twitter:image:alt" content="The Flowmodoro Pomodoro timer mid-session: a glowing progress ring at 18:42 on a dark aurora background">
+
+    <!-- Structured data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Flowmodoro",
+        "url": "https://drthunter.github.io/Flowmodoro/",
+        "description": "Flowmodoro is a free online Pomodoro timer with ambient focus sounds, project time tracking, rewards and five themes. No sign-up, runs in your browser.",
+        "applicationCategory": "ProductivityApplication",
+        "operatingSystem": "Any (web browser)",
+        "browserRequirements": "Requires JavaScript",
+        "image": "https://drthunter.github.io/Flowmodoro/assets/og-image.png",
+        "screenshot": "https://drthunter.github.io/Flowmodoro/assets/og-image.png",
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "featureList": [
+            "Pomodoro focus timer with 25/5/30 minute presets and custom times",
+            "Ambient focus sounds: rain, forest, ocean, white, pink and brown noise and more",
+            "Per-project time tracking with notes",
+            "Daily, weekly and monthly productivity reports with Word export",
+            "Daily, weekly and monthly rewards",
+            "Five colour themes"
+        ],
+        "author": { "@type": "Person", "name": "DrTHunter", "url": "https://github.com/DrTHunter" }
+    }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Space+Grotesk:wght@500;600&display=swap" rel="stylesheet">
@@ -1137,7 +1193,7 @@
 
     <!-- Dropdown Menu -->
     <div class="dropdown">
-        <button class="dropdown-btn" id="menuBtn">☰ Menu</button>
+        <button class="dropdown-btn" id="menuBtn" aria-label="Menu">☰<span class="btn-label">Menu</span></button>
         <div class="dropdown-items" id="menuItems">
             <div class="item" data-panel="info">ℹ️ Pomodoro Info</div>
             <div class="item" data-panel="productivity">📊 Productivity Tracking</div>
@@ -1695,26 +1751,26 @@
 
     <!-- Audio Elements (hidden) -->
     <audio id="alarmSound" src="assets/sounds/alarm.wav" preload="auto"></audio>
-    <audio id="meditationBowlsSound" loop src="assets/sounds/meditation-bowls.mp3"></audio>
-    <audio id="rainSound" loop src="assets/sounds/rain.wav"></audio>
-    <audio id="forestSound" loop src="assets/sounds/forest.mp3"></audio>
-    <audio id="wavesSound" loop src="assets/sounds/wave.mp3"></audio>
-    <audio id="coffeeSound" loop src="assets/sounds/coffee-shop.wav"></audio>
-    <audio id="whitenoiseSound" loop src="assets/sounds/white-noise.wav"></audio>
-    <audio id="pinknoiseSound" loop src="assets/sounds/pink-noise.wav"></audio>
-    <audio id="brownnoiseSound" loop src="assets/sounds/brown-noise.mp3"></audio>
-    <audio id="fanSound" loop src="assets/sounds/fan.mp3"></audio>
-    <audio id="thunderSound" loop src="assets/sounds/thunderstorm.mp3"></audio>
-    <audio id="riverSound" loop src="assets/sounds/river.wav"></audio>
-    <audio id="birdsSound" loop src="assets/sounds/birds.wav"></audio>
-    <audio id="fireplaceSound" loop src="assets/sounds/fireplace.mp3"></audio>
-    <audio id="citySound" loop src="assets/sounds/city.mp3"></audio>
-    <audio id="windSound" loop src="assets/sounds/wind.wav"></audio>
-    <audio id="cricketsSound" loop src="assets/sounds/Crickets.wav"></audio>
-    <audio id="waterfallSound" loop src="assets/sounds/waterfall.wav"></audio>
-    <audio id="librarySound" loop src="assets/sounds/library.wav"></audio>
-    <audio id="rainroofSound" loop src="assets/sounds/rain-roof.wav"></audio>
-    <audio id="applauseSound" src="assets/sounds/applause.mp3"></audio>
+    <audio id="meditationBowlsSound" loop preload="none" src="assets/sounds/meditation-bowls.mp3"></audio>
+    <audio id="rainSound" loop preload="none" src="assets/sounds/rain.wav"></audio>
+    <audio id="forestSound" loop preload="none" src="assets/sounds/forest.mp3"></audio>
+    <audio id="wavesSound" loop preload="none" src="assets/sounds/wave.mp3"></audio>
+    <audio id="coffeeSound" loop preload="none" src="assets/sounds/coffee-shop.wav"></audio>
+    <audio id="whitenoiseSound" loop preload="none" src="assets/sounds/white-noise.wav"></audio>
+    <audio id="pinknoiseSound" loop preload="none" src="assets/sounds/pink-noise.wav"></audio>
+    <audio id="brownnoiseSound" loop preload="none" src="assets/sounds/brown-noise.mp3"></audio>
+    <audio id="fanSound" loop preload="none" src="assets/sounds/fan.mp3"></audio>
+    <audio id="thunderSound" loop preload="none" src="assets/sounds/thunderstorm.mp3"></audio>
+    <audio id="riverSound" loop preload="none" src="assets/sounds/river.wav"></audio>
+    <audio id="birdsSound" loop preload="none" src="assets/sounds/birds.wav"></audio>
+    <audio id="fireplaceSound" loop preload="none" src="assets/sounds/fireplace.mp3"></audio>
+    <audio id="citySound" loop preload="none" src="assets/sounds/city.mp3"></audio>
+    <audio id="windSound" loop preload="none" src="assets/sounds/wind.wav"></audio>
+    <audio id="cricketsSound" loop preload="none" src="assets/sounds/Crickets.wav"></audio>
+    <audio id="waterfallSound" loop preload="none" src="assets/sounds/waterfall.wav"></audio>
+    <audio id="librarySound" loop preload="none" src="assets/sounds/library.wav"></audio>
+    <audio id="rainroofSound" loop preload="none" src="assets/sounds/rain-roof.wav"></audio>
+    <audio id="applauseSound" preload="none" src="assets/sounds/applause.mp3"></audio>
 
 
     <div class="container">
@@ -1784,6 +1840,11 @@
                 <div class="project-list" id="projectList"></div>
             </div>
         </div>
+
+        <footer class="site-footer">
+            <p><strong>Flowmodoro</strong> is a free Pomodoro timer for deep work. Focus in 25-minute sessions, take short breaks, play ambient sounds like rain or brown noise, track time per project and earn rewards as you go. Everything stays in your browser; no account needed.</p>
+            <p class="site-footer-links"><a href="https://github.com/DrTHunter/Flowmodoro">Source on GitHub</a> · <a href="https://audiooasis.app/">AudioOasis music</a></p>
+        </footer>
     </div>
 
 
@@ -3851,6 +3912,7 @@
 
         const timerBox = document.querySelector('.timer-container');
         const progressEl = document.getElementById('timerProgress');
+        const pageTitle = document.title; // the full SEO title, restored whenever the timer is idle
 
         const sync = () => {
             const running = typeof STATE !== 'undefined' && STATE.isRunning;
@@ -3861,7 +3923,7 @@
             timerBox.classList.toggle('has-progress', p > 0 && p < 100);
             body.classList.toggle('is-running', !!running);
             const mode = body.classList.contains('break-mode') ? 'Break' : 'Focus';
-            document.title = running ? `${timerEl.textContent.trim()} · ${mode} — Flowmodoro` : 'Flowmodoro';
+            document.title = running ? `${timerEl.textContent.trim()} · ${mode} — Flowmodoro` : pageTitle;
         };
         setInterval(sync, 250);
         sync();
@@ -3905,6 +3967,15 @@
     })();
     </script>
     <script>
+    // ── Compact top bar: labels fold away once you scroll, return at the top ──
+    (function () {
+        const root = document.documentElement;
+        const scrolledY = () => Math.max(window.scrollY, document.scrollingElement ? document.scrollingElement.scrollTop : 0, document.body.scrollTop);
+        const update = () => root.classList.toggle('scrolled', scrolledY() > 24);
+        window.addEventListener('scroll', update, { passive: true, capture: true });
+        update();
+    })();
+
     // ── Focus | Music: AudioOasis in place, kept alive once opened ──
     (function () {
         const local = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);

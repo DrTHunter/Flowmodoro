@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff4d8d"/>
+      <stop offset="1" stop-color="#ff9a5a"/>
+    </linearGradient>
+    <radialGradient id="bg" cx="50%" cy="30%" r="80%">
+      <stop offset="0" stop-color="#1c1730"/>
+      <stop offset="1" stop-color="#07060d"/>
+    </radialGradient>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#bg)"/>
+  <circle cx="32" cy="32" r="19" fill="none" stroke="#ffffff" stroke-opacity=".12" stroke-width="7"/>
+  <!-- 3/4 progress arc, clockwise from 12 o'clock -->
+  <path d="M32 13 A19 19 0 1 1 13 32" fill="none" stroke="url(#g)" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="13" cy="32" r="5" fill="#fff"/>
+</svg>
