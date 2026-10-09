@@ -305,6 +305,16 @@ body.is-running .timer-container::before { animation: breathe 5s ease-in-out inf
     pointer-events: none;
 }
 .timer-display {
+    /* Centre with layout, not translate(): the JS "last minute" pulse animates
+       transform: scale(), which would otherwise wipe the centring and shove the
+       digits down-right. */
+    inset: 0;
+    margin: auto;
+    width: fit-content;
+    height: fit-content;
+    min-width: 0;
+    transform: none;
+    transform-origin: center;
     z-index: 3;
     font-family: var(--font-num);
     font-weight: 600;
